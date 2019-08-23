@@ -4,5 +4,6 @@
 composer install
 php artisan key:generate
 php artisan migrate
-chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+chown -R www-data:1000 /var/www
+chown -R 775 /var/www
 php-fpm
