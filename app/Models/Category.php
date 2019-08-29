@@ -13,6 +13,7 @@ class Category extends Model
     use Uuid;
     protected $fillable = ["name","description","is_active"];
     protected $dates = ['deleted_at'];
+    public $incrementing = false;
     protected $casts = [
         "id" => 'string'
     ] ;
