@@ -12,6 +12,8 @@ class GenreTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(Genre::class,100)->create();
+        DB::transaction(function () {
+            factory(Genre::class,100)->create();
+        });
     }
 }

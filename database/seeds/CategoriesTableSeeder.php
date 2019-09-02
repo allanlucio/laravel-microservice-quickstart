@@ -2,7 +2,7 @@
 
 use App\Models\Category;
 use Illuminate\Database\Seeder;
-
+use DB;
 class CategoriesTableSeeder extends Seeder
 {
     /**
@@ -12,6 +12,9 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(Category::class,100)->create();
+        DB::transaction(function () {
+            factory(Category::class,100)->create();
+        });
+
     }
 }
