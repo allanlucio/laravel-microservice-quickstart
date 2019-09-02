@@ -6,7 +6,6 @@ use App\Models\Category;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CategoryTest extends TestCase
 {
@@ -46,6 +45,8 @@ class CategoryTest extends TestCase
         $this->assertEquals("test1",$category->name);
         $this->assertNull($category->description);
         $this->assertTrue((bool)$category->is_active);
+        $this->assertRegExp('/^\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}$/',$category->id);
+
 
         $category = Category::create(
             ["name"=>"test1",
@@ -73,37 +74,41 @@ class CategoryTest extends TestCase
 
     }
 
-    public function testCreate(){
-        $category = factory(Category::class);
-        $category->refresh();
+    public function testUpdate(){
+        $category = $category = factory(Category::class)->create([
+            "description" => "test_description",
+            "is_active" => false
+        ]);
 
-        $this->assertEquals("test1",$category->name);
-        $this->assertNull($category->description);
-        $this->assertTrue((bool)$category->is_active);
+        $data = [
+            "name" => 'test_name_update',
+            "description" => 'test_description_update',
+            "is_active" => true
+        ];
+        $category->update($data);
 
-        $category = Category::create(
-            ["name"=>"test1",
-             "description"=>null
-            ]
-        );
-        $this->assertNull($category->description);
-
-        $category = Category::create(
-            ["name"=>"test1",
-             "description"=>"ola"
-            ]
-        );
-        $category->refresh();
-        $this->assertEquals("ola",$category->description);
+        foreach( $data as $key => $value){
+            $this->assertEquals($value,$category->{$key});
+        }
 
 
-        $category = Category::create(
-            ["name"=>"test1",
-             "is_active"=>false
-            ]
-        );
-        $category->refresh();
-        $this->assertFalse($category->is_active);
 
+    }
+
+    public function testDelete(){
+        $category = $category = factory(Category::class)->create([
+            "description" => "test_description",
+            "is_active" => false
+        ]);
+        $category->delete();
+
+        $category_after_delete = Category::find($category->id);
+        $category_on_trash = Category::withTrashed()->find($category->id);
+        $this->assertNull($category_after_delete);
+        $this->assertNotNull($category_on_trash->updated_at);
+
+        $category_on_trash->forceDelete();
+        $category_on_trash_after_force_delete = Category::withTrashed()->find($category->id);
+        $this->assertNull($category_on_trash_after_force_delete);
     }
 }
