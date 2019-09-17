@@ -22,73 +22,63 @@ class CategoryControllerTest extends TestCase
 
     }
 
-    // public function testIndex()
-    // {
+    public function testIndex()
+    {
 
-    //     $response = $this->get(route("categories.index"));
+        $response = $this->get(route("categories.index"));
 
-    //     $response
-    //         ->assertStatus(200)
-    //         ->assertJson([$this->category->toArray()]);
-    // }
+        $response
+            ->assertStatus(200)
+            ->assertJson([$this->category->toArray()]);
+    }
 
-    // public function testShow()
-    // {
+    public function testShow()
+    {
 
-    //     $response = $this->get(route("categories.show",['category'=>$this->category->id]));
+        $response = $this->get(route("categories.show",['category'=>$this->category->id]));
 
-    //     $response
-    //         ->assertStatus(200)
-    //         ->assertJson($this->category->toArray());
-    // }
+        $response
+            ->assertStatus(200)
+            ->assertJson($this->category->toArray());
+    }
 
-    // public function testInvalidationData(){
+    public function testInvalidationData(){
 
-    //     $data = [
-    //         'name' => ''
-    //     ];
-    //     $this->assertInvalidationInStoreAction($data,'required');
-    //     $this->assertInvalidationInUpdateAction($data,'required');
+        $data = [
+            'name' => ''
+        ];
+        $this->assertInvalidationInStoreAction($data,'required');
+        $this->assertInvalidationInUpdateAction($data,'required');
 
-    //     $data = [
-    //         "name"=>str_repeat("a",256)
-    //     ];
+        $data = [
+            "name"=>str_repeat("a",256)
+        ];
 
-    //     $this->assertInvalidationInStoreAction($data,'max.string',["max"=>255]);
-    //     $this->assertInvalidationInUpdateAction($data,'max.string',["max"=>255]);
+        $this->assertInvalidationInStoreAction($data,'max.string',["max"=>255]);
+        $this->assertInvalidationInUpdateAction($data,'max.string',["max"=>255]);
 
-    //     $data = [
-    //         "is_active"=>"a"
-    //     ];
-    //     $this->assertInvalidationInStoreAction($data,'boolean');
-    //     $this->assertInvalidationInUpdateAction($data,'boolean');
+        $data = [
+            "is_active"=>"a"
+        ];
+        $this->assertInvalidationInStoreAction($data,'boolean');
+        $this->assertInvalidationInUpdateAction($data,'boolean');
 
-    // }
+    }
 
-    // public function assertInvalidationRequired(TestResponse $response){
-    //     $this->assertInvalidationFields($response, ['name'],'required');
-    //     $response->assertJsonMissingValidationErrors(["is_active"]);
-    // }
-    // public function assertInvalidationMax(TestResponse $response){
-    //     $this->assertInvalidationFields($response, ['name'],'max.string',["max"=>255]);
-    // }
-    // public function assertInvalidationBoolean(TestResponse $response){
-    //     $this->assertInvalidationFields($response, ['is_active'],'boolean');
-    // }
 
-    // public function testStore(){
-    //     $data = [
-    //         "name" => "test"
-    //     ];
-    //     $this->assertStore($data,$data + ["description"=>null,'is_active'=>true, 'deleted_at'=>null]);
+    public function testStore(){
+        $data = [
+            "name" => "test"
+        ];
+        $this->assertStore($data,$data + ["description"=>null,'is_active'=>true, 'deleted_at'=>null]);
 
-    //     $data = [
-    //             "name" => "test2",
-    //             "is_active" => false,
-    //             "description" => 'description'
-    //     ];
-    //     $this->assertStore($data,$data + ["description"=>'description','is_active'=>false, 'deleted_at'=>null]);
-    // }
+        $data = [
+                "name" => "test2",
+                "is_active" => false,
+                "description" => 'description'
+        ];
+        $this->assertStore($data,$data + ["description"=>'description','is_active'=>false, 'deleted_at'=>null]);
+    }
 
     public function testUpdate(){
         $this->category = factory(Category::class)->create([
@@ -117,13 +107,13 @@ class CategoryControllerTest extends TestCase
 
     }
 
-    // public function testDelete(){
+    public function testDelete(){
 
-    //     $response = $this->json('delete',route("categories.destroy",['category'=>$this->category->id]));
-    //     $category = Category::find($this->category->id);
-    //     $response->assertStatus(204);
-    //     $this->assertNull($category);
-    // }
+        $response = $this->json('delete',route("categories.destroy",['category'=>$this->category->id]));
+        $category = Category::find($this->category->id);
+        $response->assertStatus(204);
+        $this->assertNull($category);
+    }
 
 
     protected function routeStore(){

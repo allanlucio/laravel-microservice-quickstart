@@ -32,7 +32,7 @@ trait TestValidations{
         foreach($fields as $field){
             $field_name = str_replace('_'," ",$field);
             $response->assertJsonFragment([
-                \Lang::trans("validation.".$rule,["attribute"=>$field_name] + $ruleParams)
+                \Lang::get("validation.".$rule,["attribute"=>$field_name] + $ruleParams)
             ]);
         }
 

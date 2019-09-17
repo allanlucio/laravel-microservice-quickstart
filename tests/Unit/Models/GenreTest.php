@@ -11,13 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class GenreTest extends TestCase
 {
-    public static function setUpBeforeClass(){
-        // parent::setUpBeforeClass();
-    }
-    public static function tearDownAfterClass()
-    {
 
-    }
 
     protected function setUp(): void{
         parent::setUp();

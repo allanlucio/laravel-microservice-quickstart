@@ -11,15 +11,6 @@ class CategoryTest extends TestCase
 {
 
 
-
-    public static function setUpBeforeClass(){
-        // parent::setUpBeforeClass();
-    }
-    public static function tearDownAfterClass()
-    {
-
-    }
-
     protected function setUp(): void{
         parent::setUp();
         $this->category = new Category();
