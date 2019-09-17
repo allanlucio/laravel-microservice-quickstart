@@ -18,15 +18,13 @@ class CategoryControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->category = factory(Category::class)->create();
 
+        $this->category = factory(Category::class)->create();
     }
 
     public function testIndex()
     {
-
         $response = $this->get(route("categories.index"));
-
         $response
             ->assertStatus(200)
             ->assertJson([$this->category->toArray()]);
@@ -36,7 +34,6 @@ class CategoryControllerTest extends TestCase
     {
 
         $response = $this->get(route("categories.show",['category'=>$this->category->id]));
-
         $response
             ->assertStatus(200)
             ->assertJson($this->category->toArray());
