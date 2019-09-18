@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Request as IlluminateRequest;
 
 abstract class BasicCrudController extends Controller
 {
     protected abstract function model();
     protected abstract function rulesStore(): array;
+    protected abstract function rulesUpdate(): array;
 
     public function index()
     {
@@ -22,29 +24,38 @@ abstract class BasicCrudController extends Controller
 
     public function store(Request $request)
     {
-        $this->validate($request,$this->rulesStore());
-        $category = Category::create($request->all());
-        $category->refresh();
+        $validated_data = $this->validate($request,$this->rulesStore());
+        $obj = $this->model()::create($validated_data);
+        $obj->refresh();
 
-        return $category;
+        return $obj;
 
     }
 
-    public function show(Category $category)
+    protected function findOrFail($id){
+        $model = $this->model();
+        $keyName = (new $model)->getRouteKeyName();
+        return $this->model()::where($keyName,$id)->firstOrFail();
+    }
+    public function show($id)
     {
-        return $category;
+        return $this->findOrFail($id);
     }
 
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        $this->validate($request,$this->rules);
-        $category->update($request->all());
-        return $category;
+
+        $validated_data = $this->validate($request,$this->rulesUpdate());
+        $obj=$this->findOrFail($id);
+        $obj->update($validated_data);
+
+        return $obj;
     }
 
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        $category->delete();
+        $obj=$this->findOrFail($id);
+        $obj->delete();
 
         return response()->noContent();
     }
