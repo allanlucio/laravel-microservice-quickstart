@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as IlluminateRequest;
 
 abstract class BasicCrudController extends Controller
 {
+
     protected abstract function model();
     protected abstract function rulesStore(): array;
     protected abstract function rulesUpdate(): array;
 
     public function index()
     {
+
         // if($request->has("only_trashed")){
 
         //     return $this->model()::withTrashed()->get();
