@@ -2,20 +2,20 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Genre;
+use App\Models\CastMember;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class GenreTest extends TestCase
+class CastMemberUnitTest extends TestCase
 {
 
 
     protected function setUp(): void{
         parent::setUp();
-        $this->genre = new Genre();
+        $this->cast_member = new CastMember();
     }
 
     protected function teardown(): void{
@@ -23,30 +23,28 @@ class GenreTest extends TestCase
 
     }
 
-
-
     public function testFillableAttribute()
     {
 
 
         $this->assertEquals(
-            ["name","is_active"],
-            $this->genre->getFillable()
+            ["name","type"],
+            $this->cast_member->getFillable()
         );
 
     }
     public function testIncrementAttribute()
     {
 
-        $this->assertFalse( $this->genre->getIncrementing());
+        $this->assertFalse( $this->cast_member->getIncrementing());
 
     }
 
     public function testCastsAttribute()
     {
-       $casts= ["id" => 'string',"is_active"=>"boolean"];
+       $casts= ["id" => 'string',"type"=>"int"];
 
-        $this->assertEquals($casts, $this->genre->getCasts()
+        $this->assertEquals($casts, $this->cast_member->getCasts()
         );
 
     }
@@ -54,9 +52,9 @@ class GenreTest extends TestCase
     {
 
         $dates= array_values(["deleted_at","created_at","updated_at"]);
-        $datesGenre= array_values($this->genre->getDates());
+        $datesCastMember= array_values($this->cast_member->getDates());
 
-        $this->assertEquals($dates,$datesGenre
+        $this->assertEquals($dates,$datesCastMember
         );
 
     }
@@ -68,9 +66,9 @@ class GenreTest extends TestCase
             SoftDeletes::class, Uuid::class
 
         ];
-        $genreTrais=array_values(class_uses(Genre::class));
+        $cast_memberTrais=array_values(class_uses(CastMember::class));
 
-        $this->assertEquals($traits,$genreTrais);
+        $this->assertEquals($traits,$cast_memberTrais);
 
     }
 }
