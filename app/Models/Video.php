@@ -26,4 +26,11 @@ class Video extends Model
         "duration" => 'integer',
         "opened" => 'boolean'
     ] ;
+
+    public function categories(){
+        return $this->belongsToMany(Category::class);
+    }
+    public function genres(){
+        return $this->belongsToMany(Genre::class);
+    }
 }

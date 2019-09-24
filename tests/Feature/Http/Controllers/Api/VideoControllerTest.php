@@ -2,15 +2,22 @@
 
 namespace Tests\Feature\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\VideoController;
+use App\Models\Category;
+use App\Models\Genre;
 use App\Models\Video;
+use Exception;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Mockery;
+use Tests\Exception\TestException;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
 
-class VideoCrudControllerTest extends TestCase
+class VideoControllerTest extends TestCase
 {
     use DatabaseMigrations, TestValidations, TestSaves;
     private $video;
@@ -21,12 +28,14 @@ class VideoCrudControllerTest extends TestCase
         $this->video = factory(Video::class)->create([
             "opened"=>false
         ]);
+
+
         $this->sendData = [
             "title" => "title",
             "description" => "description",
             "year_launched" => 2010,
             "rating" => Video::RATING_LIST[0],
-            "duration" => 90,
+            "duration" => 90
         ];
 
     }
@@ -56,7 +65,9 @@ class VideoCrudControllerTest extends TestCase
             "description"=>"",
             "year_launched"=>"",
             'rating'=>"",
-            'duration'=>""
+            'duration'=>"",
+            'categories_id'=>"",
+            'genres_id'=>""
         ];
         $this->assertInvalidationInStoreAction($data,"required");
         $this->assertInvalidationInUpdateAction($data,"required");
@@ -87,7 +98,7 @@ class VideoCrudControllerTest extends TestCase
     }
     public function testInvalidationOpenedField(){
         $data = [
-            "year_launched"=>"a",
+            "opened"=>"a",
 
         ];
         $this->assertInvalidationInStoreAction($data,"boolean");
@@ -101,16 +112,47 @@ class VideoCrudControllerTest extends TestCase
         $this->assertInvalidationInStoreAction($data,"in");
         $this->assertInvalidationInUpdateAction($data,"in");
     }
+    public function testInvalidationArray(){
+        $data = [
+            "genres_id"=>"a",
+            "categories_id"=>"a",
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"array");
+        $this->assertInvalidationInUpdateAction($data,"array");
+    }
+
+    public function testInvalidationCategoriesId(){
+        $data = [
+
+            "categories_id"=>["a"],
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+    }
+    public function testInvalidationGenresId(){
+        $data = [
+            "genres_id"=>["a"],
+
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+    }
 
 
     public function testSave(){
+        $genre = factory(Genre::class)->create();
+        $category = factory(Category::class)->create();
+        $category_genres_array = ["categories_id"=>[$category->id],"genres_id"=>[$genre->id]];
         $data=[
             [
-                "send_data"=>$this->sendData,
+                "send_data"=>$this->sendData + $category_genres_array,
                 "test_data"=>$this->sendData + ['opened'=>false,'deleted_at'=>null]
             ],
             [
-                "send_data"=>$this->sendData+['opened'=>true,'duration'=>30,"rating"=>Video::RATING_LIST[1]],
+                "send_data"=>$this->sendData+['opened'=>true,'duration'=>30,"rating"=>Video::RATING_LIST[1]]+$category_genres_array,
                 "test_data"=>$this->sendData + ['opened'=>true,'duration'=>30,"rating"=>Video::RATING_LIST[1],'deleted_at'=>null]
             ]
         ];
@@ -124,30 +166,39 @@ class VideoCrudControllerTest extends TestCase
         }
     }
 
-    // public function testStore(){
+    public function testRollbackStore(){
+        $controller = Mockery::mock(VideoController::class)
+            ->makePartial()->shouldAllowMockingProtectedMethods();
+        $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData);
+        $controller->shouldReceive("rulesStore")->withAnyArgs()->andReturn([]);
+        $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
-    //     // $response = $this->assertStore($this->sendData,$this->sendData + ['opened'=>false]);
-    //     // $response->assertJsonStructure(['created_at','updated_at']);
-    //     $this->assertStore(
-    //         $this->sendData + ['opened'=>true,'duration'=>30,"rating"=>Video::RATING_LIST[1]],
-    //         $this->sendData + ['opened'=>true,'duration'=>30,"rating"=>Video::RATING_LIST[1]]
-    //     );
-
-
-
-    // }
-
-    // public function testUpdate(){
-
-    //     $response = $this->assertUpdate($this->sendData,$this->sendData + ['opened'=>false]);
-    //     $this->assertUpdate(
-    //         $this->sendData + ['duration'=>30,"rating"=>Video::RATING_LIST[1]],
-    //         $this->sendData + ['duration'=>30,"rating"=>Video::RATING_LIST[1]]
-    //     );
-    //     $response->assertJsonStructure(['created_at','updated_at']);
+        $request = Mockery::mock(Request::class);
+        try {
+            $controller->store($request);
+        } catch (TestException $e) {
+            $this->assertCount(1,Video::all());
+        }
 
 
-    // }
+    }
+    public function testRollbackUpdate(){
+        $controller = Mockery::mock(VideoController::class)
+            ->makePartial()->shouldAllowMockingProtectedMethods();
+        $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData+["title"=>"abcdef"]);
+        $controller->shouldReceive("rulesUpdate")->withAnyArgs()->andReturn([]);
+        $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
+
+        $request = Mockery::mock(Request::class);
+        try {
+            $controller->update($request,$this->video->id);
+        } catch (TestException $e) {
+            $this->assertCount(1,Video::all());
+            $this->assertEquals($this->video->title,Video::find($this->video->id)->title);
+        }
+
+
+    }
 
     public function testDelete(){
         $video = factory(Video::class)->create();
