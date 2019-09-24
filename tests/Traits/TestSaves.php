@@ -29,6 +29,8 @@ trait TestSaves{
         if($response->status() !== 200){
             throw new \Exception("Response status must be 200, given {$response->status()}:\n{$response->content()}");
         }
+
+
         $this->assertInDatabase($response,$testDatabase);
         $this->assertJsonResponseContent($response,$testDatabase,$testJsonData);
 
@@ -38,11 +40,13 @@ trait TestSaves{
     private function assertInDatabase($response, $testDatabase){
         $model = $this->model();
         $table = (new $model)->getTable();
-        $this->assertDatabaseHas($table,$testDatabase+["id"=>$response->json("id")]);
+        $testDatabase["id"]=$response->json("id");
+        $this->assertDatabaseHas($table,$testDatabase);
     }
     private function assertJsonResponseContent($response, $testDatabase, $testJsonData){
         $testResponse = $testJsonData ?? $testDatabase;
-        $response->assertJsonFragment($testResponse+["id"=>$response->json("id")]);
+        $testResponse["id"]=$response->json("id");
+        $response->assertJsonFragment($testResponse);
     }
 
 

@@ -13,5 +13,6 @@ yarn-error.log
 .idea/
 .vscode/
 .docker/dbdata/
+.docker/dbdata
 _ide_helper_models.php
 _ide_helper.php

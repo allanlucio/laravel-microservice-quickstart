@@ -2,18 +2,28 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Genre;
+use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class GenreController extends BasicCrudController
+class VideoController extends BasicCrudController
 {
-    private $rules = [
-        "name" => "required|max:255",
-        "is_active" => "boolean",
-        "categories_id"=>"required|array|exists:categories,id"
-    ];
+    private $rules;
+
+    public function __construct()
+    {
+        $this->rules = [
+            "title"=>"required|max:255",
+            "description"=>"required",
+            "year_launched"=>'required|date_format:Y',
+            'opened'=>"boolean",
+            'rating'=>"required|in:".implode(",",Video::RATING_LIST),
+            'duration'=>"required|integer",
+            "categories_id"=>"required|array|exists:categories,id",
+            "genres_id"=>"required|array|exists:genres,id"
+        ];
+
+    }
 
     public function store(Request $request)
     {
@@ -46,11 +56,10 @@ class GenreController extends BasicCrudController
 
     protected function handleRelations($video, Request $request){
         $video->categories()->sync($request->get("categories_id"));
-
+        $video->genres()->sync($request->get("genres_id"));
     }
-
     protected function model(){
-        return Genre::class;
+        return Video::class;
     }
 
     protected function rulesStore():array{

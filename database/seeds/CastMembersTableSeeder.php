@@ -12,8 +12,8 @@ class CastMembersTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::transaction(function () {
+
             factory(CastMember::class,100)->create();
-        });
+
     }
 }
