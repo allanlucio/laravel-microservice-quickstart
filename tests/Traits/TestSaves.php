@@ -22,6 +22,7 @@ trait TestSaves{
 
 
 
+
         return $response;
     }
     protected function assertUpdate(array $sendData,array $testDatabase, array $testJsonData = null): TestResponse{
@@ -47,6 +48,14 @@ trait TestSaves{
         $testResponse = $testJsonData ?? $testDatabase;
         $testResponse["id"]=$response->json("id");
         $response->assertJsonFragment($testResponse);
+    }
+
+    private function assertManyToManyRelashionships($id,$relashionship,$elements){
+
+        $relashionship_elements = $this->model()::find($id)
+            ->$relashionship->whereIn("id",$elements);
+
+        $this->assertEquals(count($elements),$relashionship_elements->count());
     }
 
 

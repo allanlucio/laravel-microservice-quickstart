@@ -148,9 +148,11 @@ class GenreControllerTest extends TestCase
         foreach ($data as $key => $value) {
             $response = $this->assertStore($value["send_data"],$value["test_data"]);
             $response->assertJsonStructure(['created_at','updated_at']);
+            $this->assertManyToManyRelashionships($response->json("id"),"categories",[$category->id]);
 
             $response = $this->assertUpdate($value["send_data"],$value["test_data"]);
             $response->assertJsonStructure(['created_at','updated_at']);
+            $this->assertManyToManyRelashionships($response->json("id"),"categories",[$category->id]);
         }
     }
 

@@ -19,10 +19,10 @@ class GenreTest extends TestCase
     public function testList()
     {
         $genre=factory(Genre::class)->create();
-        $categories = Genre::all();
-        $this->assertCount(1, $categories);
+        $genres = Genre::all();
+        $this->assertCount(1, $genres);
 
-        $genreKeys = array_keys($categories->first()->getAttributes());
+        $genreKeys = array_keys($genres->first()->getAttributes());
 
         $keys = [
             "id",

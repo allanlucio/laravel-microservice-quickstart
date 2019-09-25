@@ -57,6 +57,7 @@ class VideoController extends BasicCrudController
     protected function handleRelations($video, Request $request){
         $video->categories()->sync($request->get("categories_id"));
         $video->genres()->sync($request->get("genres_id"));
+
     }
     protected function model(){
         return Video::class;
