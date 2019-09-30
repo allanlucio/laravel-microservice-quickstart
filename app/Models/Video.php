@@ -28,9 +28,9 @@ class Video extends Model
     ] ;
 
     public function categories(){
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Category::class)->withTrashed();
     }
     public function genres(){
-        return $this->belongsToMany(Genre::class);
+        return $this->belongsToMany(Genre::class)->withTrashed();
     }
 }
