@@ -56,7 +56,8 @@ class GenreControllerTest extends TestCase
     public function testInvalidationData(){
 
         $data = [
-            'name' => ''
+            'name' => '',
+            "categories_id"=>''
         ];
         $this->assertInvalidationInStoreAction($data,'required');
         $this->assertInvalidationInUpdateAction($data,'required');
@@ -94,6 +95,18 @@ class GenreControllerTest extends TestCase
         ];
         $this->assertInvalidationInStoreAction($data,"exists");
         $this->assertInvalidationInUpdateAction($data,"exists");
+
+        $category = factory(Category::class)->create();
+        $category->delete();
+        $data = [
+
+            "categories_id"=>[$category->id],
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+
+
     }
 
 
@@ -164,13 +177,15 @@ class GenreControllerTest extends TestCase
         $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
         $request = Mockery::mock(Request::class);
+        $hasError = false;
         try {
             $controller->store($request);
         } catch (TestException $e) {
             $this->assertCount(1,Genre::all());
+            $hasError = true;
         }
 
-
+        $this->assertTrue($hasError);
     }
     public function testRollbackUpdate(){
         $controller = Mockery::mock(GenreController::class)
@@ -180,14 +195,16 @@ class GenreControllerTest extends TestCase
         $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
         $request = Mockery::mock(Request::class);
+        $hasError = false;
         try {
             $controller->update($request,$this->genre->id);
         } catch (TestException $e) {
             $this->assertCount(1,Genre::all());
             $this->assertEquals($this->genre->title,Genre::find($this->genre->id)->title);
+            $hasError = true;
         }
 
-
+        $this->assertTrue($hasError);
     }
 
     public function testDelete(){

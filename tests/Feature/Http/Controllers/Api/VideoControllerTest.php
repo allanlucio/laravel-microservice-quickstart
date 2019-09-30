@@ -130,10 +130,31 @@ class VideoControllerTest extends TestCase
         ];
         $this->assertInvalidationInStoreAction($data,"exists");
         $this->assertInvalidationInUpdateAction($data,"exists");
+
+
+        $category = factory(Category::class)->create();
+        $category->delete();
+        $data = [
+
+            "categories_id"=>[$category->id],
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
     }
     public function testInvalidationGenresId(){
         $data = [
             "genres_id"=>["a"],
+
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+
+        $genre = factory(Genre::class)->create();
+        $genre->delete();
+        $data = [
+            "genres_id"=>[$genre->id],
 
 
         ];
@@ -145,6 +166,7 @@ class VideoControllerTest extends TestCase
     public function testSave(){
         $genre = factory(Genre::class)->create();
         $category = factory(Category::class)->create();
+        $genre->categories()->sync($category->id);
         $category_genres_array = ["categories_id"=>[$category->id],"genres_id"=>[$genre->id]];
         $data=[
             [
@@ -180,12 +202,15 @@ class VideoControllerTest extends TestCase
         $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
         $request = Mockery::mock(Request::class);
+        $hasError = false;
         try {
             $controller->store($request);
         } catch (TestException $e) {
             $this->assertCount(1,Video::all());
+            $hasError = true;
         }
 
+        $this->assertTrue($hasError);
 
     }
     public function testRollbackUpdate(){
@@ -196,14 +221,16 @@ class VideoControllerTest extends TestCase
         $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
         $request = Mockery::mock(Request::class);
+        $hasError = false;
         try {
             $controller->update($request,$this->video->id);
         } catch (TestException $e) {
             $this->assertCount(1,Video::all());
             $this->assertEquals($this->video->title,Video::find($this->video->id)->title);
+            $hasError = true;
         }
 
-
+        $this->assertTrue($hasError);
     }
 
     public function testDelete(){
