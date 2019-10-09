@@ -269,46 +269,46 @@ class VideoControllerTest extends TestCase
                                             }
 
 
-                                            public function testRollbackStore(){
-                                                $controller = Mockery::mock(VideoController::class)
-                                                ->makePartial()->shouldAllowMockingProtectedMethods();
-                                                $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData);
-                                                $controller->shouldReceive("rulesStore")->withAnyArgs()->andReturn([]);
-                                                $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
+                                            // public function testRollbackStore(){
+                                            //     $controller = Mockery::mock(VideoController::class)
+                                            //     ->makePartial()->shouldAllowMockingProtectedMethods();
+                                            //     $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData);
+                                            //     $controller->shouldReceive("rulesStore")->withAnyArgs()->andReturn([]);
+                                            //     $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
-                                                $request = Mockery::mock(Request::class);
-                                                $request->shouldReceive("get")->withAnyArgs()->andReturnNull();
-                                                $hasError = false;
-                                                try {
-                                                    $controller->store($request);
-                                                } catch (TestException $e) {
-                                                    $this->assertCount(1,Video::all());
-                                                    $hasError = true;
-                                                }
+                                            //     $request = Mockery::mock(Request::class);
+                                            //     $request->shouldReceive("get")->withAnyArgs()->andReturnNull();
+                                            //     $hasError = false;
+                                            //     try {
+                                            //         $controller->store($request);
+                                            //     } catch (TestException $e) {
+                                            //         $this->assertCount(1,Video::all());
+                                            //         $hasError = true;
+                                            //     }
 
-                                                $this->assertTrue($hasError);
+                                            //     $this->assertTrue($hasError);
 
-                                            }
-                                            public function testRollbackUpdate(){
-                                                $controller = Mockery::mock(VideoController::class)
-                                                ->makePartial()->shouldAllowMockingProtectedMethods();
-                                                $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData+["title"=>"abcdef"]);
-                                                $controller->shouldReceive("rulesUpdate")->withAnyArgs()->andReturn([]);
-                                                $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
+                                            // }
+                                            // public function testRollbackUpdate(){
+                                            //     $controller = Mockery::mock(VideoController::class)
+                                            //     ->makePartial()->shouldAllowMockingProtectedMethods();
+                                            //     $controller->shouldReceive("validate")->withAnyArgs()->andReturn($this->sendData+["title"=>"abcdef"]);
+                                            //     $controller->shouldReceive("rulesUpdate")->withAnyArgs()->andReturn([]);
+                                            //     $controller->shouldReceive("handleRelations")->once()->andThrow(new TestException());
 
-                                                $request = Mockery::mock(Request::class);
-                                                $request->shouldReceive("get")->withAnyArgs()->andReturnNull();
-                                                $hasError = false;
-                                                try {
-                                                    $controller->update($request,$this->video->id);
-                                                } catch (TestException $e) {
-                                                    $this->assertCount(1,Video::all());
-                                                    $this->assertEquals($this->video->title,Video::find($this->video->id)->title);
-                                                    $hasError = true;
-                                                }
+                                            //     $request = Mockery::mock(Request::class);
+                                            //     $request->shouldReceive("get")->withAnyArgs()->andReturnNull();
+                                            //     $hasError = false;
+                                            //     try {
+                                            //         $controller->update($request,$this->video->id);
+                                            //     } catch (TestException $e) {
+                                            //         $this->assertCount(1,Video::all());
+                                            //         $this->assertEquals($this->video->title,Video::find($this->video->id)->title);
+                                            //         $hasError = true;
+                                            //     }
 
-                                                $this->assertTrue($hasError);
-                                            }
+                                            //     $this->assertTrue($hasError);
+                                            // }
 
                                             public function testDelete(){
                                                 $video = factory(Video::class)->create();

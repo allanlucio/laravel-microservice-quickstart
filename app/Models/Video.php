@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,8 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class Video extends Model
 {
-    use SoftDeletes,Uuid;
+    use SoftDeletes,Uuid,UploadFiles;
     const RATING_LIST = [ "L","10","12","14","16","18"];
+    public static $fileFields = ['filme','banner','trailer'];
+
     protected $fillable = [
         "title",
         "description",
@@ -26,12 +29,16 @@ class Video extends Model
         "year_launched" => 'integer',
         "duration" => 'integer',
         "opened" => 'boolean'
-    ] ;
+    ];
 
     public static function create(array $attributes){
+        $files = self::extracFiles($attributes);
         try{
             DB::beginTransaction();
             $obj = static::query()->create($attributes);
+
+            static::handleRelations($obj,$attributes);
+            $obj->uploadFiles($files);
             DB::commit();
 
             return $obj;
@@ -49,6 +56,7 @@ class Video extends Model
         try{
             DB::beginTransaction();
             $saved = parent::update($attributes,$options);
+            static::handleRelations($this,$attributes);
             if($saved){
 
             }
@@ -63,10 +71,28 @@ class Video extends Model
 
     }
 
+    public static function handleRelations($video, $attributes){
+        if(key_exists("categories_id",$attributes)){
+
+            $video->categories()->sync($attributes["categories_id"]);
+        }
+        if(key_exists("genres_id",$attributes)){
+            $video->genres()->sync($attributes["genres_id"]);
+        }
+
+
+
+    }
+
     public function categories(){
         return $this->belongsToMany(Category::class)->withTrashed();
     }
     public function genres(){
         return $this->belongsToMany(Genre::class)->withTrashed();
+    }
+
+    protected function uploadDir()
+    {
+        return $this->uuid;
     }
 }
