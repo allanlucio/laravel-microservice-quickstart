@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\Traits\UploadFiles;
 use App\Models\Video;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -49,38 +50,38 @@ class VideoUnitTest extends TestCase
 
     public function testCastsAttribute()
     {
-       $casts= [
-        "id" => 'string',
-        "year_launched" => 'integer',
-        "duration" => 'integer',
-        "opened" => 'boolean'
-    ];
+        $casts= [
+            "id" => 'string',
+            "year_launched" => 'integer',
+            "duration" => 'integer',
+            "opened" => 'boolean'
+        ];
 
         $this->assertEquals($casts, $this->video->getCasts()
-        );
+    );
 
-    }
-    public function testDatesAttribute()
-    {
+}
+public function testDatesAttribute()
+{
 
-        $dates= array_values(["deleted_at","created_at","updated_at"]);
-        $datesVideo= array_values($this->video->getDates());
+    $dates= array_values(["deleted_at","created_at","updated_at"]);
+    $datesVideo= array_values($this->video->getDates());
 
-        $this->assertEquals($dates,$datesVideo
-        );
+    $this->assertEquals($dates,$datesVideo
+);
 
-    }
+}
 
-    public function testIfUseTraits(){
+public function testIfUseTraits(){
 
 
-        $traits=[
-            SoftDeletes::class, Uuid::class
+    $traits=[
+        SoftDeletes::class, Uuid::class, UploadFiles::class
 
-        ];
-        $videoTrais=array_values(class_uses(Video::class));
+    ];
+    $videoTrais=array_values(class_uses(Video::class));
 
-        $this->assertEquals($traits,$videoTrais);
+    $this->assertEquals($traits,$videoTrais);
 
-    }
+}
 }
