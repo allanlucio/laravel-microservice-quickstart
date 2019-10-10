@@ -12,7 +12,9 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Mockery;
+use Storage;
 use Tests\Exception\TestException;
 use Tests\Traits\TestSaves;
 use Tests\Traits\TestValidations;
@@ -162,15 +164,45 @@ class VideoControllerTest extends TestCase
             $this->assertInvalidationInUpdateAction($data,"exists");
         }
 
+        public function testInvalidationFile(){
+
+            $data = [
+                "video_file"=>"a",
+
+            ];
+            $this->assertInvalidationInStoreAction($data,"file");
+            $this->assertInvalidationInUpdateAction($data,"file");
+
+            $this->assertInvalidationInStoreAction($data,"mimes",["values"=>"mp4"]);
+            $this->assertInvalidationInUpdateAction($data,"mimes",["values"=>"mp4"]);
+
+            // Storage::fake("");
+            $file = UploadedFile::fake()->create("video.mp4")->size(51000);
+            // dd($file);
+            $data = [
+                "video_file"=>$file,
+
+            ];
+            $this->assertInvalidationInStoreAction($data,"max.file",["max"=>50000]);
+            $this->assertInvalidationInUpdateAction($data,"max.file",["max"=>50000]);
+
+
+        }
+
+
 
         public function testSave(){
             $genre = factory(Genre::class)->create();
             $category = factory(Category::class)->create();
             $genre->categories()->sync($category->id);
+            Storage::fake("");
+            $video_file = UploadedFile::fake()->create("video.mp4")->size(50);
+
+
             $category_genres_array = ["categories_id"=>[$category->id],"genres_id"=>[$genre->id]];
             $data=[
                 [
-                    "send_data"=>$this->sendData + $category_genres_array,
+                    "send_data"=>$this->sendData + $category_genres_array+ ["video_file"=>$video_file],
                     "test_data"=>$this->sendData + ['opened'=>false,'deleted_at'=>null]
                 ],
                 [
@@ -185,12 +217,19 @@ class VideoControllerTest extends TestCase
                     $this->assertManyToManyRelashionships($response->json("id"),"genres",[$genre->id]);
                     $this->assertManyToManyRelashionships($response->json("id"),"categories",[$category->id]);
 
+                    $video_id = $response->json("id");
+
 
 
                     $response = $this->assertUpdate($value["send_data"],$value["test_data"]);
                     $response->assertJsonStructure(['created_at','updated_at']);
                     $this->assertManyToManyRelashionships($response->json("id"),"genres",[$genre->id]);
                     $this->assertManyToManyRelashionships($response->json("id"),"categories",[$category->id]);
+
+                    if(isset($value["send_data"]["video_file"])){
+
+                        Storage::assertExists("{$video_id}/{$video_file->hashName()}");
+                    }
                 }
             }
             public function testSyncGenres(){

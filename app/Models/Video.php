@@ -12,7 +12,7 @@ class Video extends Model
 {
     use SoftDeletes,Uuid,UploadFiles;
     const RATING_LIST = [ "L","10","12","14","16","18"];
-    public static $fileFields = ['filme','banner','trailer'];
+    public static $fileFields = ['video_file'];
 
     protected $fillable = [
         "title",
@@ -93,6 +93,6 @@ class Video extends Model
 
     protected function uploadDir()
     {
-        return $this->uuid;
+        return $this->id;
     }
 }
