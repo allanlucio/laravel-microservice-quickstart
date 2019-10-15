@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Models;
+namespace Tests\Feature\Models\Video;
 
 use App\Models\Category;
 use App\Models\Genre;
@@ -10,29 +10,9 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 
-class VideoTest extends TestCase
+class VideoCrudTest extends BaseVideoTestCase
 {
 
-    use DatabaseMigrations;
-    private $data;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->data = [
-            "title" => "title",
-            "description" => "description",
-            "year_launched" => 2010,
-            "rating" => Video::RATING_LIST[0],
-            "duration" => 90,
-
-        ];
-    }
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
     public function testList()
     {
         $video=factory(Video::class)->create();

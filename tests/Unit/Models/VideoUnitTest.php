@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Unit\Models\Video;
 
 use App\Models\Traits\UploadFiles;
 use App\Models\Video;
