@@ -20,7 +20,6 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
 
         public function testIndex()
         {
-
             $response = $this->get(route("videos.index"));
 
             $response
