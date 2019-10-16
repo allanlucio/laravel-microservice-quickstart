@@ -29,6 +29,27 @@ class VideoUploadTest extends BaseVideoTestCase
         Storage::assertExists("{$video->id}/{$video->video_file}");
 
     }
+    public function testUpdateWithFiles(){
+        Storage::fake();
+        $files =[
+            "thumb_file" => UploadedFile::fake()->image("thumb.jpg"),
+            "video_file" => UploadedFile::fake()->image("video.mp4"),
+        ];
+
+        $video = factory(Video::class)->create();
+        $video->update($this->data + $files);
+        Storage::assertExists("{$video->id}/{$video->thumb_file}");
+        Storage::assertExists("{$video->id}/{$video->video_file}");
+
+        $newVideoFile = UploadedFile::fake()->image("video2.mp4");
+        $video->update([
+            "video_file"=>$newVideoFile
+        ]);
+        Storage::assertExists("{$video->id}/{$files['thumb_file']->hashName()}");
+        Storage::assertExists("{$video->id}/{$newVideoFile->hashName()}");
+        Storage::assertMissing("{$video->id}/{$files['video_file']->hashName()}");
+
+    }
     public function testCreateIfRollbackFiles(){
         Storage::fake();
         \Event::listen(TransactionCommitted::class, function(){
@@ -43,6 +64,30 @@ class VideoUploadTest extends BaseVideoTestCase
                     "video_file" => UploadedFile::fake()->image("video.mp4"),
                 ]
             );
+        } catch (TestException $e) {
+            $this->assertCount(0,Storage::allFiles());
+            $hasError = true;
+        }
+
+
+        $this->assertTrue($hasError);
+
+    }
+    public function testUpdateIfRollbackFiles(){
+        Storage::fake();
+        \Event::listen(TransactionCommitted::class, function(){
+            throw new TestException();
+        });
+
+        $hasError = false;
+        $video = factory(Video::class)->create();
+        try {
+            $files =[
+                "thumb_file" => UploadedFile::fake()->image("thumb.jpg"),
+                "video_file" => UploadedFile::fake()->image("video.mp4"),
+            ];
+
+            $video->update($this->data + $files);
         } catch (TestException $e) {
             $this->assertCount(0,Storage::allFiles());
             $hasError = true;

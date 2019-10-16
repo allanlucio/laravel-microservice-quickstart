@@ -10,25 +10,26 @@ use Illuminate\Support\Facades\Schema;
 class UploadFileStub extends Model
 {
     use UploadFiles;
-    public static $fileFields = ['file1','file2','other'];
-    // protected $fillable = ["name","description"];
-    // protected $table = 'category_stubs';
+    public static $fileFields = ['file1','file2'];
+    protected $fillable = ["name",'file1','file2'];
+    protected $table = 'upload_file_stubs';
 
-    // public static function createTable(){
+    public static function makeTable(){
 
-    //     Schema::create('category_stubs', function (Blueprint $table) {
-    //         $table->bigIncrements('id');
-    //         $table->string("name");
-    //         $table->text("description")->nullable();
-    //         $table->timestamps();
-    //     });
-    // }
+        Schema::create('upload_file_stubs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string("name");
+            $table->text("file1")->nullable();
+            $table->text("file2")->nullable();
+            $table->timestamps();
+        });
+    }
 
 
 
-    // public static function dropTable(){
-    //     Schema::dropIfExists('category_stubs');
-    // }
+    public static function dropTable(){
+        Schema::dropIfExists('upload_file_stubs');
+    }
 
     protected function uploadDir()
     {
