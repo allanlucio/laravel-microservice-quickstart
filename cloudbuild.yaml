@@ -26,3 +26,11 @@ steps:
 - id: "Rodando PHP UNIT"
   name: "gcr.io/cloud-builders/docker"
   args: ["exec","-t","micro-videos-app","php","/var/www/vendor/bin/phpunit","-c","/var/www/phpunit.xml"]
+
+
+# gcloud kms encrypt \
+# --ciphertext-file=./storage/credentials/google/service-account-storage.json.enc \
+# --plaintext-file=./storage/credentials/google/service-account-storage.json \
+# --location=global \
+# --keyring=testing-lesson \
+# --key=service-account
