@@ -4,7 +4,7 @@ namespace Tests\Feature\Models\Traits;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Storage;
 use Tests\Stubs\Models\Traits\UploadFileStub;
 use Tests\TestCase;
 
@@ -21,10 +21,10 @@ class UploadFilesTest extends TestCase
     }
 
     public function testMakeOldFilesOnSaving(){
-
+        Storage::fake();
         $this->obj->fill([
             "name"=>"test",
-            "file1" => "test1.mp4",
+            "file" => "test1.mp4",
             "file2" => "test2.mp4",
         ]);
 
@@ -41,7 +41,7 @@ class UploadFilesTest extends TestCase
 
     }
     public function testMakeOldFilesNullOnSaving(){
-
+        Storage::fake();
         $this->obj->fill([
             "name"=>"test",
 
@@ -57,6 +57,34 @@ class UploadFilesTest extends TestCase
 
         $this->assertEqualsCanonicalizing([],$this->obj->oldFiles);
 
+
+    }
+
+    public function testGetFilesUrlNull(){
+        Storage::fake();
+        $this->obj->fill([
+            "name"=>"test"
+        ]);
+
+        $this->obj->save();
+
+        $this->assertNull($this->obj->file_url);
+
+
+    }
+
+    public function testFilesUrlExists(){
+        Storage::fake();
+
+        $file = UploadedFile::fake()->image("file.jpg");
+        $obj= UploadFileStub::create([
+            "name"=>"test",
+            "file" => $file,
+
+        ]);
+
+        Storage::assertExists("1/{$obj->file}");
+        $this->assertEquals("/storage/1/{$file->hashName()}", $obj->file_url);
 
     }
 

@@ -18,14 +18,38 @@ class VideoControllerUploadsTest extends BaseVideoControllerTest
 {
     use TestValidations, TestUploads;
 
-    public function testInvalidationFileVideo(){
+    public function testInvalidationFilesVideo(){
 
         $this->assertInvalidationFile(
             "video_file",
             "mp4",
-            12,
+            52428800,
             "mimetypes",
             ["values" => "video/mp4"]
+        );
+
+        $this->assertInvalidationFile(
+            "trailer_file",
+            "mp4",
+            1048576,
+            "mimetypes",
+            ["values" => "video/mp4"]
+        );
+
+        $this->assertInvalidationFile(
+            "thumb_file",
+            "jpg",
+            51200,
+            "mimes",
+            ["values" => "jpeg"]
+        );
+
+        $this->assertInvalidationFile(
+            "banner_file",
+            "jpg",
+            10240,
+            "mimes",
+            ["values" => "jpeg"]
         );
 
 
@@ -46,6 +70,7 @@ class VideoControllerUploadsTest extends BaseVideoControllerTest
         ];
 
         $response = $this->json("POST",$this->routeStore(),$data["send_data"]);
+
         $response->assertJsonStructure(['created_at','updated_at']);
 
         $video_id = $response->json("id");
@@ -82,7 +107,10 @@ class VideoControllerUploadsTest extends BaseVideoControllerTest
 
     protected function getFiles(){
         return [
-            "video_file" => UploadedFile::fake()->create("video_file.mp4")
+            "video_file" => UploadedFile::fake()->create("video_file.mp4"),
+            "thumb_file" => UploadedFile::fake()->create("thumb_file.jpeg"),
+            "banner_file" => UploadedFile::fake()->image("banner_file.jpeg"),
+            "trailer_file" => UploadedFile::fake()->image("trailer_file.mp4"),
         ];
     }
 

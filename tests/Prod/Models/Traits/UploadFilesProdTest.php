@@ -86,6 +86,35 @@ class UploadFilesProdTest extends TestCase
         Storage::assertMissing("1/{$file2->hashName()}");
     }
 
+    public function testGetFilesUrlNull(){
+
+        $this->obj->fill([
+            "name"=>"test"
+        ]);
+
+        $this->obj->save();
+
+        $this->assertNull($this->obj->file_url);
+
+
+    }
+
+    public function testFilesUrlExists(){
+
+
+        $file = UploadedFile::fake()->image("file.jpg");
+        $obj= UploadFileStub::create([
+            "name"=>"test",
+            "file" => $file,
+
+        ]);
+
+        ;
+        Storage::assertExists("1/{$obj->file}");
+        $this->assertEquals(env("GOOGLE_CLOUD_STORAGE_API_URI")."/1/{$file->hashName()}", $obj->file_url);
+
+    }
+
 
 
 

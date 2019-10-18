@@ -30,6 +30,7 @@ trait UploadFiles{
 
     public function uploadFiles(array $files){
         foreach($files as $file){
+
             $this->uploadFile($file);
         }
     }
@@ -64,6 +65,15 @@ trait UploadFiles{
         }
 
         return $files;
+    }
+
+    public function getFileUrl($filename){
+        if(Storage::exists("{$this->uploadDir()}/$filename")){
+            return Storage::url("{$this->uploadDir()}/$filename");
+        }
+
+
+        return null;
     }
 
 

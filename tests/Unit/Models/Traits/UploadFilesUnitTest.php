@@ -41,16 +41,16 @@ class UploadFilesUnitTest extends TestCase
 
     public function testDeleteOldFiles(){
         Storage::fake();
-        $file1 = UploadedFile::fake()->create("video1.mp4")->size(1);
+        $file = UploadedFile::fake()->create("video1.mp4")->size(1);
         $file2 = UploadedFile::fake()->create("video2.mp4")->size(1);
-        $this->obj->uploadFiles([$file1,$file2]);
+        $this->obj->uploadFiles([$file,$file2]);
         $this->obj->deleteOldFiles();
         $this->assertCount(2,Storage::allFiles());
 
-        $this->obj->oldFiles = [$file1->hashName()];
+        $this->obj->oldFiles = [$file->hashName()];
         $this->obj->deleteOldFiles();
 
-        Storage::assertMissing("1/{$file1->hashName()}");
+        Storage::assertMissing("1/{$file->hashName()}");
 
         Storage::assertExists("1/{$file2->hashName()}");
 
@@ -88,42 +88,57 @@ class UploadFilesUnitTest extends TestCase
         $this->assertCount(0,$attributes);
         $this->assertCount(0,$files);
 
-        $attributes = ['file1'=>'test'];
+        $attributes = ['file'=>'test'];
         $files = UploadFileStub::extracFiles($attributes);
 
         $this->assertCount(1,$attributes);
-        $this->assertEquals($attributes,['file1'=>'test']);
+        $this->assertEquals($attributes,['file'=>'test']);
         $this->assertCount(0,$files);
 
-        $attributes = ['file1'=>'test','file2'=>'test'];
+        $attributes = ['file'=>'test','file2'=>'test'];
         $files = UploadFileStub::extracFiles($attributes);
 
         $this->assertCount(2,$attributes);
-        $this->assertEquals($attributes,['file1'=>'test','file2'=>'test']);
+        $this->assertEquals($attributes,['file'=>'test','file2'=>'test']);
         $this->assertCount(0,$files);
 
-        $file1 = UploadedFile::fake()->create("video.mp4");
+        $file = UploadedFile::fake()->create("video.mp4");
 
-        $attributes = ['file1'=>$file1,'file2'=>'test'];
+        $attributes = ['file'=>$file,'file2'=>'test'];
         $files = UploadFileStub::extracFiles($attributes);
 
         $this->assertCount(2,$attributes);
-        $this->assertEquals($attributes,['file1'=>$file1->hashName(),'file2'=>'test']);
+        $this->assertEquals($attributes,['file'=>$file->hashName(),'file2'=>'test']);
 
         $this->assertCount(1,$files);
-        $this->assertEquals($files,[$file1]);
+        $this->assertEquals($files,[$file]);
 
-        $file1 = UploadedFile::fake()->create("video.mp4");
+        $file = UploadedFile::fake()->create("video.mp4");
         $file2 = UploadedFile::fake()->create("video2.mp4");
-        $attributes = ['file1'=>$file1,'file2'=>$file2,'other'=>'test'];
+        $attributes = ['file'=>$file,'file2'=>$file2,'other'=>'test'];
         $files = UploadFileStub::extracFiles($attributes);
 
         $this->assertCount(3,$attributes);
-        $this->assertEquals($attributes,['file1'=>$file1->hashName(),'file2'=>$file2->hashName(),'other'=>'test']);
+        $this->assertEquals($attributes,['file'=>$file->hashName(),'file2'=>$file2->hashName(),'other'=>'test']);
 
         $this->assertCount(2,$files);
-        $this->assertEquals($files,[$file1,$file2]);
+        $this->assertEquals($files,[$file,$file2]);
     }
+
+
+    public function testGetFileUrl(){
+        Storage::fake("");
+        $file = UploadedFile::fake()->create("video.mp4");
+        $this->obj->uploadFile($file);
+        $file_hash_name = $file->hashName();
+        $file_url = $this->obj->getFileUrl($file_hash_name);
+
+        $this->assertEquals($file_url,"/storage/1/{$file_hash_name}");
+
+        $this->obj->deleteFile($file);
+        $this->assertNull($this->obj->getFileUrl($file_hash_name));
+    }
+
 
 
 
