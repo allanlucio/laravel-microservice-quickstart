@@ -87,7 +87,8 @@ class UploadFilesProdTest extends TestCase
     }
 
     public function testGetFilesUrlNull(){
-
+        UploadFileStub::dropTable();
+        UploadFileStub::makeTable();
         $this->obj->fill([
             "name"=>"test"
         ]);
@@ -100,7 +101,8 @@ class UploadFilesProdTest extends TestCase
     }
 
     public function testFilesUrlExists(){
-
+        UploadFileStub::dropTable();
+        UploadFileStub::makeTable();
 
         $file = UploadedFile::fake()->image("file.jpg");
         $obj= UploadFileStub::create([
