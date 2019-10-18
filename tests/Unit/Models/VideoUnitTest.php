@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Unit\Models\Video;
 
 use App\Models\Traits\UploadFiles;
 use App\Models\Video;
@@ -35,7 +35,12 @@ class VideoUnitTest extends TestCase
                 "year_launched",
                 'opened',
                 'rating',
-                'duration'
+                'duration',
+                'video_file',
+                "thumb_file",
+                "banner_file",
+                "trailer_file"
+
             ],
             $this->video->getFillable()
         );

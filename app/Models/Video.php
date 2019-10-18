@@ -12,7 +12,7 @@ class Video extends Model
 {
     use SoftDeletes,Uuid,UploadFiles;
     const RATING_LIST = [ "L","10","12","14","16","18"];
-    public static $fileFields = ['video_file'];
+    public static $fileFields = ['video_file',"thumb_file","banner_file","trailer_file"];
 
     protected $fillable = [
         "title",
@@ -20,8 +20,14 @@ class Video extends Model
         "year_launched",
         'opened',
         'rating',
-        'duration'
+        'duration',
+        'video_file',
+        "thumb_file",
+        "banner_file",
+        "trailer_file"
     ];
+    // protected $appends = ["video_file_url",];
+
     protected $dates = ['deleted_at'];
     public $incrementing = false;
     protected $casts = [
@@ -30,6 +36,19 @@ class Video extends Model
         "duration" => 'integer',
         "opened" => 'boolean'
     ];
+
+    public function getVideoFileUrlAttribute(){
+        return $this->getFileUrl($this->video_file);
+    }
+    public function getThumbFileUrlAttribute(){
+        return $this->getFileUrl($this->thumb_file);
+    }
+    public function getBannerFileUrlAttribute(){
+        return $this->getFileUrl($this->banner_file);
+    }
+    public function getTrailerFileUrlAttribute(){
+        return $this->getFileUrl($this->trailer_file);
+    }
 
     public static function create(array $attributes){
         $files = self::extracFiles($attributes);
@@ -44,7 +63,7 @@ class Video extends Model
             return $obj;
         }catch(\Exception $e){
             if(isset($obj)){
-                //excluir uploads
+                $obj->deleteFiles($files);
             }
             DB::rollBack();
             throw $e;
@@ -53,18 +72,23 @@ class Video extends Model
     }
 
     public function update(array $attributes = [], array $options = []){
+        $files = self::extracFiles($attributes);
         try{
             DB::beginTransaction();
             $saved = parent::update($attributes,$options);
             static::handleRelations($this,$attributes);
             if($saved){
-
+                $this->uploadFiles($files);
             }
+
             DB::commit();
 
+            if($saved && count($files)){
+                $this->deleteOldFiles();
+            }
             return $saved;
         }catch(\Exception $e){
-
+            $this->deleteFiles($files);
             DB::rollBack();
             throw $e;
         }

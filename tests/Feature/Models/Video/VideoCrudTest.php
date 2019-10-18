@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Models;
+namespace Tests\Feature\Models\Video;
 
 use App\Models\Category;
 use App\Models\Genre;
@@ -10,29 +10,20 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 
-class VideoTest extends TestCase
+class VideoCrudTest extends BaseVideoTestCase
 {
 
-    use DatabaseMigrations;
-    private $data;
-
+    private $fileFieldsData = [];
     protected function setUp(): void
     {
         parent::setUp();
-        $this->data = [
-            "title" => "title",
-            "description" => "description",
-            "year_launched" => 2010,
-            "rating" => Video::RATING_LIST[0],
-            "duration" => 90,
+        $fileFields = [];
+        foreach(Video::$fileFields as $field){
+            $this->fileFieldsData[$field]="$field.test";
+        }
 
-        ];
     }
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
+
     public function testList()
     {
         $video=factory(Video::class)->create();
@@ -47,6 +38,9 @@ class VideoTest extends TestCase
             "description",
             "year_launched",
             'video_file',
+            'thumb_file',
+            "banner_file",
+            "trailer_file",
             'opened',
             'rating',
             'duration',
@@ -58,21 +52,14 @@ class VideoTest extends TestCase
     }
 
     public function testCreate(){
-        $video = Video::create(
-            ["title"=>"test",
-            "description"=>"description",
-            "year_launched"=>2008,
-            'rating'=>"L",
-            'duration'=>190]
-        );
+
+        $video = Video::create($this->data + $this->fileFieldsData);
         $video->refresh();
 
-        $this->assertEquals("test",$video->title);
-        $this->assertEquals("description",$video->description);
-        $this->assertEquals(2008,$video->year_launched);
-        $this->assertEquals("L",$video->rating);
-        $this->assertEquals(190,$video->duration);
-        $this->assertFalse($video->opened);
+        $this->assertDatabaseHas("videos",
+            $this->data + $this->fileFieldsData + ["opened"=>false]
+        );
+
         $this->assertRegExp('/^\w{8}\-\w{4}\-\w{4}\-\w{4}\-\w{12}$/',$video->id);
 
 
@@ -110,19 +97,11 @@ class VideoTest extends TestCase
     public function testUpdate(){
         $video = $video = factory(Video::class)->create();
 
-        $data = [
-            "title"=>"test custom",
-            "description"=>"description custom",
-            "year_launched"=>2020,
-            'rating'=>"14",
-            "opened"=>true,
-            'duration'=>350
-        ];
-        $video->update($data);
+        $video->update($this->data + $this->fileFieldsData);
 
-        foreach( $data as $key => $value){
-            $this->assertEquals($value,$video->{$key});
-        }
+        $this->assertDatabaseHas("videos",
+            $video->toArray() + $this->fileFieldsData + ["opened"=>false]
+        );
 
 
 
