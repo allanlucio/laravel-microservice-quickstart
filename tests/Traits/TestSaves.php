@@ -41,13 +41,17 @@ trait TestSaves{
     private function assertInDatabase($response, $testDatabase){
         $model = $this->model();
         $table = (new $model)->getTable();
-        $testDatabase["id"]=$response->json("id");
+        $testDatabase["id"]=$this->getIdFromResponse($response);
         $this->assertDatabaseHas($table,$testDatabase);
     }
     private function assertJsonResponseContent($response, $testDatabase, $testJsonData){
         $testResponse = $testJsonData ?? $testDatabase;
-        $testResponse["id"]=$response->json("id");
+        $testResponse["id"]=$this->getIdFromResponse($response);
         $response->assertJsonFragment($testResponse);
+    }
+
+    private function getIdFromResponse($response){
+        return $response->json("id") ?? $response->json("data.id");
     }
 
     private function assertManyToManyRelashionships($id,$relashionship,$elements){

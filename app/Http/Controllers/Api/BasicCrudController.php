@@ -13,6 +13,7 @@ abstract class BasicCrudController extends Controller
     protected abstract function model();
     protected abstract function rulesStore(): array;
     protected abstract function rulesUpdate(): array;
+    protected abstract function resource();
 
     public function index()
     {
@@ -29,8 +30,10 @@ abstract class BasicCrudController extends Controller
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);
         $obj->refresh();
+        $resource = $this->resource();
 
-        return $obj;
+
+        return new $resource($obj);
 
     }
 
@@ -41,7 +44,9 @@ abstract class BasicCrudController extends Controller
     }
     public function show($id)
     {
-        return $this->findOrFail($id);
+        $obj = $this->findOrFail($id);
+        $resource = $this->resource();
+        return new $resource($obj);
     }
 
     public function update(Request $request, $id)
@@ -51,7 +56,10 @@ abstract class BasicCrudController extends Controller
         $obj=$this->findOrFail($id);
         $obj->update($validated_data);
 
-        return $obj;
+        $resource = $this->resource();
+
+
+        return new $resource($obj);
     }
 
     public function destroy($id)
