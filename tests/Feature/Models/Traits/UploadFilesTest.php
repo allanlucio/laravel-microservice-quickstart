@@ -60,18 +60,18 @@ class UploadFilesTest extends TestCase
 
     }
 
-    public function testGetFilesUrlNull(){
-        Storage::fake();
-        $this->obj->fill([
-            "name"=>"test"
-        ]);
+    // public function testGetFilesUrlNull(){
+    //     Storage::fake();
+    //     $this->obj->fill([
+    //         "name"=>"test"
+    //     ]);
 
-        $this->obj->save();
+    //     $this->obj->save();
 
-        $this->assertNull($this->obj->file_url);
+    //     $this->assertNull($this->obj->file_url);
 
 
-    }
+    // }
 
     public function testFilesUrlExists(){
         Storage::fake();

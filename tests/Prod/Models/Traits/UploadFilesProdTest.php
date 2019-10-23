@@ -47,7 +47,7 @@ class UploadFilesProdTest extends TestCase
     }
 
     public function testDeleteOldFiles(){
-        Storage::fake();
+
         $file1 = UploadedFile::fake()->create("video1.mp4")->size(1);
         $file2 = UploadedFile::fake()->create("video2.mp4")->size(1);
         $this->obj->uploadFiles([$file1,$file2]);
@@ -61,7 +61,7 @@ class UploadFilesProdTest extends TestCase
 
     }
     public function testDeleteFile(){
-        Storage::fake();
+
         $file = UploadedFile::fake()->create("video.mp4");
         $this->obj->uploadFile($file);
         $this->obj->deleteFile($file->hashName());
@@ -86,19 +86,19 @@ class UploadFilesProdTest extends TestCase
         Storage::assertMissing("1/{$file2->hashName()}");
     }
 
-    public function testGetFilesUrlNull(){
-        UploadFileStub::dropTable();
-        UploadFileStub::makeTable();
-        $this->obj->fill([
-            "name"=>"test"
-        ]);
+    // public function testGetFilesUrlNull(){
+    //     UploadFileStub::dropTable();
+    //     UploadFileStub::makeTable();
+    //     $this->obj->fill([
+    //         "name"=>"test"
+    //     ]);
 
-        $this->obj->save();
+    //     $this->obj->save();
 
-        $this->assertNull($this->obj->file_url);
+    //     $this->assertNull($this->obj->file_url);
 
 
-    }
+    // }
 
     public function testFilesUrlExists(){
         UploadFileStub::dropTable();

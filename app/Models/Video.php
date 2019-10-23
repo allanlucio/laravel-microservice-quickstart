@@ -12,7 +12,12 @@ class Video extends Model
 {
     use SoftDeletes,Uuid,UploadFiles;
     const RATING_LIST = [ "L","10","12","14","16","18"];
+    const THUMB_FILE_MAX_SIZE = 1024 * 5;
+    const BANNER_FILE_MAX_SIZE = 1024 * 10;
+    const TRAILER_FILE_MAX_SIZE = 1024 * 1024 * 1;
+    const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 50;
     public static $fileFields = ['video_file',"thumb_file","banner_file","trailer_file"];
+
 
     protected $fillable = [
         "title",
@@ -38,16 +43,16 @@ class Video extends Model
     ];
 
     public function getVideoFileUrlAttribute(){
-        return $this->getFileUrl($this->video_file);
+        return $this->video_file ? $this->getFileUrl($this->video_file) : null;
     }
     public function getThumbFileUrlAttribute(){
-        return $this->getFileUrl($this->thumb_file);
+        return $this->video_file ? $this->getFileUrl($this->thumb_file) : null;
     }
     public function getBannerFileUrlAttribute(){
-        return $this->getFileUrl($this->banner_file);
+        return $this->video_file ? $this->getFileUrl($this->banner_file) : null;
     }
     public function getTrailerFileUrlAttribute(){
-        return $this->getFileUrl($this->trailer_file);
+        return $this->video_file ? $this->getFileUrl($this->trailer_file) : null;
     }
 
     public static function create(array $attributes){

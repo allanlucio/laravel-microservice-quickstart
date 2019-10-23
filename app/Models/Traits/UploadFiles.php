@@ -68,12 +68,13 @@ trait UploadFiles{
     }
 
     public function getFileUrl($filename){
-        if(Storage::exists("{$this->uploadDir()}/$filename")){
-            return Storage::url("{$this->uploadDir()}/$filename");
-        }
 
+        return Storage::url($this->relativeFilePath($filename));
 
-        return null;
+    }
+
+    public function relativeFilePath($value){
+        return "{$this->uploadDir()}/{$value}";
     }
 
 
