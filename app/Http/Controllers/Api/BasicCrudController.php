@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Request as IlluminateRequest;
 
 abstract class BasicCrudController extends Controller
 {
 
+    protected $paginationSize = 15;
+
     protected abstract function model();
     protected abstract function rulesStore(): array;
     protected abstract function rulesUpdate(): array;
     protected abstract function resource();
+    protected abstract function resourceCollection();
 
     public function index()
     {
@@ -22,7 +26,17 @@ abstract class BasicCrudController extends Controller
 
         //     return $this->model()::withTrashed()->get();
         // }
-        return $this->model()::all();
+
+        $collection = !$this->paginationSize ? $this->model()::all(): $this->model()::paginate($this->paginationSize);
+
+
+
+        $refClass = new \ReflectionClass($this->resourceCollection());
+        $resourceCollectionClass = $this->resourceCollection();
+
+        return $refClass->isSubClassOf(ResourceCollection::class) ? new $resourceCollectionClass($collection): $resourceCollectionClass::collection($collection);
+
+
     }
 
     public function store(Request $request)
