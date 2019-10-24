@@ -9,4 +9,10 @@ trait TestResources{
     protected function assertResource(TestResponse $response, JsonResource $resource){
         $response->assertJson($resource->response()->getData(true));
     }
+    protected function assertResourcePaginate(TestResponse $response,$paginate_count){
+        $response->assertJson([
+            'meta'=> ['per_page'=>$paginate_count],
+            'links' =>[]
+        ]);
+    }
 }
