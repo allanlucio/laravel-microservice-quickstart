@@ -31,15 +31,9 @@ class CategoryControllerTest extends TestCase
     {
         $response = $this->get(route("categories.index"));
         $response = $response
-        ->assertStatus(200)
-        ->assertJsonStructure([
-            'data'=>[
-                '*'=>$this->serializedFields,
+        ->assertStatus(200);
 
-            ],
-
-        ]);
-
+        $this->assertResourceJsonData($response,['*'=>$this->serializedFields]);
         $this->assertResourcePaginate($response,15);
         $resource = CategoryResource::collection(collect([$this->category]));
         $this->assertResource($response,$resource);

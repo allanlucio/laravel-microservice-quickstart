@@ -15,4 +15,9 @@ trait TestResources{
             'links' =>[]
         ]);
     }
+    protected function assertResourceJsonData(TestResponse $response,$data){
+        $response->assertJsonStructure([
+            'data'=>$data,
+        ]);
+    }
 }
