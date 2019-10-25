@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\GenreResource;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +27,9 @@ class GenreController extends BasicCrudController
         });
 
         $obj->refresh();
+        $resource = $this->resource();
+        return new $resource($obj);
 
-        return $obj;
     }
 
     public function update(Request $request, $id)
@@ -41,7 +43,9 @@ class GenreController extends BasicCrudController
             return $obj;
         });
 
-        return $obj;
+        $resource = $this->resource();
+        return new $resource($obj);
+
     }
 
     protected function handleRelations($video, Request $request){
@@ -59,5 +63,12 @@ class GenreController extends BasicCrudController
 
     protected function rulesUpdate():array{
         return $this->rules;
+    }
+    protected function resourceCollection()
+    {
+        return $this->resource();
+    }
+    protected function resource(){
+        return GenreResource::class;
     }
 }

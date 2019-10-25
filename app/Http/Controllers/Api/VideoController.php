@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use App\Rules\GenresHasCategoriesRule;
 use Illuminate\Http\Request;
@@ -39,7 +40,8 @@ class VideoController extends BasicCrudController
 
         $obj->refresh();
 
-        return $obj;
+        $resource = $this->resource();
+        return new $resource($obj);
     }
 
     public function update(Request $request, $id)
@@ -49,7 +51,8 @@ class VideoController extends BasicCrudController
         $obj=$this->findOrFail($id);
         $obj->update($validated_data);
 
-        return $obj;
+        $resource = $this->resource();
+        return new $resource($obj);
     }
     protected function addRuleIfGenreHasCategories(Request $request){
         $categoriesId=$request->get("categories_id");
@@ -69,5 +72,12 @@ class VideoController extends BasicCrudController
 
     protected function rulesUpdate():array{
         return $this->rules;
+    }
+    protected function resourceCollection()
+    {
+        return $this->resource();
+    }
+    protected function resource(){
+        return VideoResource::class;
     }
 }

@@ -3,6 +3,8 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BasicCrudController;
+use App\Http\Resources\CategoryResource;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -12,11 +14,13 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Tests\Stubs\Controllers\CategoryControllerStub;
 use Tests\Stubs\Models\CategoryStub;
+use Tests\Stubs\Resources\CategoryResourceStub;
+use Tests\Traits\TestResources;
 
 class BasicCrudControllerTest extends TestCase
 {
-
     private $controller;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -40,8 +44,12 @@ class BasicCrudControllerTest extends TestCase
         ]);
 
 
-        $result = $this->controller->index()->toArray();
-        $this->assertEquals([$category->toArray()], $result);
+        $resource_response = $this->controller->index();
+        $data_response = $resource_response->response()->getData(true);
+        $resource = CategoryResourceStub::collection(CategoryStub::paginate(15));
+        $data = $resource->response()->getData(true);
+
+        $this->assertEquals($data_response, $data);
     }
 
 
@@ -58,9 +66,12 @@ class BasicCrudControllerTest extends TestCase
         $request = \Mockery::mock(Request::class);
         $request->shouldReceive("all")->once()->andReturn(['name'=>'test_name','description'=>'description']);
         $obj = $this->controller->store($request);
+        $resource = new CategoryResourceStub(CategoryStub::find(1));
+        $data = $resource->response()->getData(true);
+
         $this->assertEquals(
-            CategoryStub::find(1)->toArray(),
-            $obj->toArray()
+            $obj->response()->getData(true),
+            $data
         );
     }
 
@@ -75,8 +86,11 @@ class BasicCrudControllerTest extends TestCase
         $data=['name'=>'test_name2','description'=>'description2','id'=>$category->id];
         $request->shouldReceive("all")->once()->andReturn($data);
         $obj = $this->controller->update($request, $category->id);
+        $resource = new CategoryResourceStub(CategoryStub::find(1));
+        $data = $resource->response()->getData(true);
+
         $this->assertEquals(
-            CategoryStub::find(1,['name','description','id'])->toArray(),
+            $obj->response()->getData(true),
             $data
         );
     }
@@ -87,9 +101,12 @@ class BasicCrudControllerTest extends TestCase
             "description" => "test_description"
         ]);
         $obj = $this->controller->show($category->id);
+        $resource = new CategoryResourceStub(CategoryStub::find(1));
+        $data = $resource->response()->getData(true);
+
         $this->assertEquals(
-            $category->toArray(),
-            $obj->toArray()
+            $obj->response()->getData(true),
+            $data
         );
     }
 
@@ -126,5 +143,7 @@ class BasicCrudControllerTest extends TestCase
         $reflectionMethod->invokeArgs($this->controller, [0]);
 
     }
+
+
 
 }

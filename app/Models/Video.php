@@ -46,13 +46,13 @@ class Video extends Model
         return $this->video_file ? $this->getFileUrl($this->video_file) : null;
     }
     public function getThumbFileUrlAttribute(){
-        return $this->video_file ? $this->getFileUrl($this->thumb_file) : null;
+        return $this->thumb_file ? $this->getFileUrl($this->thumb_file) : null;
     }
     public function getBannerFileUrlAttribute(){
-        return $this->video_file ? $this->getFileUrl($this->banner_file) : null;
+        return $this->banner_file ? $this->getFileUrl($this->banner_file) : null;
     }
     public function getTrailerFileUrlAttribute(){
-        return $this->video_file ? $this->getFileUrl($this->trailer_file) : null;
+        return $this->trailer_file ? $this->getFileUrl($this->trailer_file) : null;
     }
 
     public static function create(array $attributes){
