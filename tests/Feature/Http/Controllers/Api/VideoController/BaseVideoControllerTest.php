@@ -19,6 +19,24 @@ class BaseVideoControllerTest extends TestCase
     use DatabaseMigrations;
     protected $video;
     protected $sendData;
+    protected $serializedFields = [
+        "title",
+        "description",
+        "year_launched",
+        'opened',
+        'rating',
+        'duration',
+        'video_file',
+        "thumb_file",
+        "banner_file",
+        "trailer_file",
+        'video_file_url',
+        "thumb_file_url",
+        "banner_file_url",
+        "trailer_file_url",
+        "categories"=>["*"=>["id",'name',"description","is_active"]],
+        "genres"=>["*"=>["id",'name',"is_active"]],
+    ];
     protected function setUp(): void
     {
         parent::setUp();

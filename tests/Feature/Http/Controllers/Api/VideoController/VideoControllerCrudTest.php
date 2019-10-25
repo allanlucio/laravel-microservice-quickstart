@@ -19,24 +19,7 @@ use Tests\Traits\TestValidations;
 class VideoControllerCrudTest extends BaseVideoControllerTest
 {
     use TestValidations, TestSaves, TestResources;
-    private $serializedFields = [
-        "title",
-        "description",
-        "year_launched",
-        'opened',
-        'rating',
-        'duration',
-        'video_file',
-        "thumb_file",
-        "banner_file",
-        "trailer_file",
-        'video_file_url',
-        "thumb_file_url",
-        "banner_file_url",
-        "trailer_file_url",
-        "categories"=>["*"=>["id",'name',"description","is_active"]],
-        "genres"=>["*"=>["id",'name',"is_active"]],
-    ];
+
     public function testIndex()
     {
         $this->video->banner_file = "banner_file.png";
