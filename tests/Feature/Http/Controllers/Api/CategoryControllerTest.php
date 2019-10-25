@@ -29,7 +29,7 @@ class CategoryControllerTest extends TestCase
     public function testIndex()
     {
         $response = $this->get(route("categories.index"));
-        $response = $response
+        $response
         ->assertStatus(200);
 
         $this->assertResourceJsonData($response,['*'=>$this->serializedFields]);
@@ -45,11 +45,7 @@ class CategoryControllerTest extends TestCase
         $response = $this->get(route("categories.show",['category'=>$this->category->id]));
         $response = $response
         ->assertStatus(200);
-
-        $this->assertResourceJsonData($response,$this->serializedFields);
-        $id = $response->json("data.id");
-        $resource = new CategoryResource(Category::find($id));
-        $this->assertResource($response,$resource);
+        $this->assertModelResource($response);
     }
 
     public function testInvalidationData(){
@@ -81,10 +77,7 @@ class CategoryControllerTest extends TestCase
             "name" => "test"
         ];
         $response = $this->assertStore($data,$data + ["description"=>null,'is_active'=>true, 'deleted_at'=>null]);
-        $this->assertResourceJsonData($response,$this->serializedFields);
-        $id = $response->json("data.id");
-        $resource = new CategoryResource(Category::find($id));
-        $this->assertResource($response,$resource);
+        $this->assertModelResource($response);
 
         $data = [
             "name" => "test2",
@@ -92,10 +85,7 @@ class CategoryControllerTest extends TestCase
             "description" => 'description'
         ];
         $response = $this->assertStore($data,$data + ["description"=>'description','is_active'=>false, 'deleted_at'=>null]);
-        $this->assertResourceJsonData($response,$this->serializedFields);
-        $id = $response->json("data.id");
-        $resource = new CategoryResource(Category::find($id));
-        $this->assertResource($response,$resource);
+        $this->assertModelResource($response);
 
 
         // $response->assertJson();
@@ -114,26 +104,22 @@ class CategoryControllerTest extends TestCase
 
             ];
             $response = $this->assertUpdate($data,$data + ['deleted_at'=>null]);
-            $this->assertResourceJsonData($response,$this->serializedFields);
-            $id = $response->json("data.id");
-            $resource = new CategoryResource(Category::find($id));
-            $this->assertResource($response,$resource);
+            $this->assertModelResource($response);
 
             $data = [
                 "name" => "test",
                 "description"=>'',
             ];
             $response = $this->assertUpdate($data,array_merge($data,['description'=>null,'deleted_at'=>null]));
-            $this->assertResourceJsonData($response,$this->serializedFields);
+            $this->assertModelResource($response);
 
             $data['description']='test';
             $response = $this->assertUpdate($data,array_merge($data,['description'=>'test','deleted_at'=>null]));
-            $this->assertResourceJsonData($response,$this->serializedFields);
+            $this->assertModelResource($response);
 
             $data['description']=null;
             $response = $this->assertUpdate($data,array_merge($data,['description'=>null,'deleted_at'=>null]));
-            $this->assertResourceJsonData($response,$this->serializedFields);
-
+            $this->assertModelResource($response);
         }
 
         public function testDelete(){
@@ -153,5 +139,9 @@ class CategoryControllerTest extends TestCase
         }
         protected function model(){
             return Category::class;
+        }
+
+        protected function resource(){
+            return CategoryResource::class;
         }
     }
