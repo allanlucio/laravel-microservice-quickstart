@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\TestResponse;
 use Tests\TestCase;
 use Illuminate\Http\UploadedFile;
 use Storage;
@@ -57,4 +58,21 @@ class BaseVideoControllerTest extends TestCase
             ]+$category_genres_array;
 
         }
+        protected function assertIfFilesUrlExists(Video $video, TestResponse $response){
+            $fileFields = Video::$fileFields;
+            $data = $response->json("data");
+            $data = array_key_exists(0,$data) ? $data[0]: $data;
+            foreach($fileFields as $field){
+                $file = $video->{$field};
+                $relative_path = $video->relativeFilePath($file);
+                $file_url = Storage::exists($relative_path)? \Storage::url($relative_path): null;
+
+                $this->assertEquals(
+                    $file_url,
+                    $data[$field."_url"]
+                );
+            }
+        }
     }
+
+

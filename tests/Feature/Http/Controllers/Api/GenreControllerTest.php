@@ -22,7 +22,9 @@ class GenreControllerTest extends TestCase
     private $sendData;
     private $serializedFields = [
         "id","name","is_active","created_at",'updated_at',"deleted_at",
-        "categories"=>["*"=>['name',"description","is_active"]
+        "categories"=>[
+            "*"=>
+                ['name',"description","is_active","created_at","updated_at","deleted_at"]
         ]
     ];
     protected function setUp(): void

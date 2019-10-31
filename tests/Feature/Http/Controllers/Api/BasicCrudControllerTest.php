@@ -45,11 +45,13 @@ class BasicCrudControllerTest extends TestCase
 
 
         $resource_response = $this->controller->index();
-        $data_response = $resource_response->response()->getData(true);
+        $resource_data_response = $resource_response->response()->getData(true);
         $resource = CategoryResourceStub::collection(CategoryStub::paginate(15));
         $data = $resource->response()->getData(true);
 
-        $this->assertEquals($data_response, $data);
+        $this->assertEquals($resource_data_response, $data);
+        $this->assertArrayHasKey('meta',$resource_data_response);
+        $this->assertArrayHasKey('links',$resource_data_response);
     }
 
 

@@ -44,6 +44,8 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
         $response
         ->assertStatus(200);
         $this->assertModelResource($response);
+
+        $this->assertIfFilesUrlExists($this->video,$response);
     }
 
     public function testInvalidationRequired(){
