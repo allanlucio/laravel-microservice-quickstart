@@ -23,7 +23,7 @@ const listRoutes = ['dashboard','categories.list'];
 
 export const Menu: React.FC = ()=>{
     
-    const menuRoutes = routes.filter(route=> listRoutes.includes(route.name));
+    const menuRoutes = routes.filter(route => listRoutes.includes(route.name));
     const classes = useStyles();
     const[anchorEl,setAnchorEl]=React.useState(null);
     const open = Boolean(anchorEl);
