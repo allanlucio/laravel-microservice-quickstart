@@ -2,7 +2,9 @@ import * as React from 'react';
 import {useState,useEffect} from "react";
 import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
 import { httpVideo } from '../../util/http';
-
+import { Chip } from '@material-ui/core';
+import format from "date-fns/format";
+import parseISO from "date-fns/parseISO";
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -11,22 +13,27 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
     {
         name:'is_active',
-        label:'Ativo?'
+        label:'Ativo?',
+        options:{
+            customBodyRender(value, tableMeta,updateValue){
+                
+                return value ? <Chip label="Sim" color="primary"></Chip>: <Chip color="secondary" label="Não"></Chip>;
+            }
+        }
     },
     {
         name:'created_at',
-        label:'Criado em'
+        label:'Criado em',
+        options:{
+            customBodyRender(value, tableMeta,updateValue){
+                
+                return <span>{format(parseISO(value),"dd/MM/yyyy")}</span>
+            }
+        }
     },
 ];
 
-const data = [
-    
-        {name:"teste1", is_active:'true', created_at:"2019-12-12"},
-        {name:"teste2", is_active:'true', created_at:"2019-8-12"},
-        {name:"teste3", is_active:'false', created_at:"2019-10-12"},
-        {name:"teste4", is_active:'true', created_at:"2019-7-12"},
-    
-]
+
 
 export const Table: React.FC = ()=>{
 
