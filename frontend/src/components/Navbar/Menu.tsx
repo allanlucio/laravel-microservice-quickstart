@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>({
         }
     }
 }));
-const listRoutes = ['dashboard','categories.list'];
+const listRoutes = ['dashboard','categories.list','cast_members.list','genres.list'];
 
 export const Menu: React.FC = ()=>{
     
