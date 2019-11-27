@@ -5,6 +5,7 @@ import { httpVideo } from '../../util/http';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
+import categoryHttp from '../../util/http/category-http';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -33,15 +34,19 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-
+interface Category{
+    id: string;
+    name: string;
+}
 
 export const Table: React.FC = ()=>{
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Category[]>([]);
     console.log(process.env);
     useEffect(()=>{
-        httpVideo.get('categories').then(
-            response => setData(response.data.data)
+        categoryHttp
+            .list<{data: Category[]}>()
+            .then(({data}) => setData(data.data)
         )
     },[]);
 

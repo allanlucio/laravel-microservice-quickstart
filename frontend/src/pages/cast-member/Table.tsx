@@ -6,17 +6,12 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 
-const castMemberTypes: any[] = [
-    {
-        key:0,
-        label:"Diretor"
-    },
-    {
-        key:1,
-        label:"Ator"
-    },
 
-]
+
+const castMemberTypeMap = {
+        0:"Diretor",
+        1:"Ator"
+    }
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -28,9 +23,9 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label:'Tipo',
         options:{
             customBodyRender(value, tableMeta,updateValue){
-                let type = castMemberTypes.find(element => element.key === value);
+                let type = castMemberTypeMap[value];
                 
-                return value ? <Chip label={type.label} color="primary"></Chip>: <Chip color="secondary" label={type.label}></Chip>;
+                return value ? <Chip label={type} color="primary"></Chip>: <Chip color="secondary" label={type}></Chip>;
             }
         }
     },
