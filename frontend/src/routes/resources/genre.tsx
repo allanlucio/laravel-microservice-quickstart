@@ -1,4 +1,5 @@
 import GenreList from "../../pages/genre/PageList";
+import GenreForm from "../../pages/genre/PageForm";
 
 
 const genreRoutes: any[] = [
@@ -15,7 +16,7 @@ const genreRoutes: any[] = [
         name:'genres.create',
         label: 'Criar Gêneros',
         path:'/genres/create',
-        component: GenreList,
+        component: GenreForm,
         exact: true
     }
     ,
