@@ -5,18 +5,15 @@ import { httpVideo } from '../../util/http';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
+import castMemberHttp from '../../util/http/cast-member-http';
+import { CastMember } from '../../util/models/cast-member';
 
-const castMemberTypes: any[] = [
-    {
-        key:0,
-        label:"Diretor"
-    },
-    {
-        key:1,
-        label:"Ator"
-    },
 
-]
+
+const castMemberTypeMap = {
+        0:"Ator",
+        1:"Diretor"
+    }
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -28,9 +25,9 @@ const columnsDefinition: MUIDataTableColumn[] = [
         label:'Tipo',
         options:{
             customBodyRender(value, tableMeta,updateValue){
-                let type = castMemberTypes.find(element => element.key === value);
+                let type = castMemberTypeMap[value];
                 
-                return value ? <Chip label={type.label} color="primary"></Chip>: <Chip color="secondary" label={type.label}></Chip>;
+                return value ? <Chip label={type} color="primary"></Chip>: <Chip color="secondary" label={type}></Chip>;
             }
         }
     },
@@ -47,15 +44,16 @@ const columnsDefinition: MUIDataTableColumn[] = [
 ];
 
 
-
 export const Table: React.FC = ()=>{
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<CastMember[]>([]);
     
     useEffect(()=>{
-        httpVideo.get('cast_members').then(
-            response => setData(response.data.data)
+        castMemberHttp
+            .list<{data: CastMember[]}>()
+            .then(({data}) => setData(data.data)
         )
+        
     },[]);
 
     return (

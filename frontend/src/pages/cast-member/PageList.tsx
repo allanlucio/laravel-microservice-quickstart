@@ -10,13 +10,13 @@ import Table from './Table';
 export const List: React.FC = ()=>{
     
     return (
-        <Page title = {'Listagem de Membros'}>
+        <Page title = {'Listagem de Membros de elenco'}>
             <Box dir={'rtl'}>
                 <Fab 
                 title="Adicionar Membro" 
                 size="small"
                 component={Link}
-                to='/cast_members/create'
+                to='/cast-members/create'
                 >
                     <AddIcon></AddIcon>
 

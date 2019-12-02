@@ -1,4 +1,5 @@
 import CategoryList from "../../pages/category/PageList";
+import CategoryForm from "../../pages/category/PageForm";
 
 
 const categoryRoutes: any[] = [
@@ -15,7 +16,7 @@ const categoryRoutes: any[] = [
         name:'categories.create',
         label: 'Criar Categorias',
         path:'/categories/create',
-        component: CategoryList,
+        component: CategoryForm,
         exact: true
     }
     ,
