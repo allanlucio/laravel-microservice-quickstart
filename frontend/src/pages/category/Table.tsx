@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {useState,useEffect} from "react";
 import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
-import { httpVideo } from '../../util/http';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
+import { Category } from '../../util/models/category';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -33,11 +33,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
         }
     },
 ];
-
-export interface Category{
-    id: string;
-    name: string;
-}
 
 export const Table: React.FC = ()=>{
 

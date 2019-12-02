@@ -6,7 +6,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import genreHttp from '../../util/http/genre-http';
-import { Category } from '../category/Table';
+import { Genre } from '../../util/models/genre';
+import { Category } from '../../util/models/category';
 
 
 
@@ -48,10 +49,7 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface Genre{
-    id: string;
-    name: string;
-}
+
 
 export const Table: React.FC = ()=>{
 

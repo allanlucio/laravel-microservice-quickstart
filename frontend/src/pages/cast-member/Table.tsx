@@ -6,12 +6,13 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from '../../util/http/cast-member-http';
+import { CastMember } from '../../util/models/cast-member';
 
 
 
 const castMemberTypeMap = {
-        0:"Diretor",
-        1:"Ator"
+        0:"Ator",
+        1:"Diretor"
     }
 
 const columnsDefinition: MUIDataTableColumn[] = [
@@ -42,10 +43,6 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-interface CastMember{
-    id: string;
-    name: string;
-}
 
 export const Table: React.FC = ()=>{
 

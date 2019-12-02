@@ -24,13 +24,10 @@ abstract class BasicCrudController extends Controller
 
         $collection = !$this->paginationSize ? $this->model()::all(): $this->model()::paginate($this->paginationSize);
 
-
-
         $refClass = new \ReflectionClass($this->resourceCollection());
         $resourceCollectionClass = $this->resourceCollection();
 
         return $refClass->isSubClassOf(ResourceCollection::class) ? new $resourceCollectionClass($collection): $resourceCollectionClass::collection($collection);
-
 
     }
 

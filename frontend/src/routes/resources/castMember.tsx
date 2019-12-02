@@ -1,5 +1,5 @@
 import CastMemberList from "../../pages/cast-member/PageList";
-
+import CastMemberForm from "../../pages/cast-member/PageForm";
 
 const castMemberRoutes: any[] = [
     
@@ -15,7 +15,7 @@ const castMemberRoutes: any[] = [
         name:'cast_members.create',
         label: 'Criar Membro',
         path:'/cast-members/create',
-        component: CastMemberList,
+        component: CastMemberForm,
         exact: true
     }
     ,
