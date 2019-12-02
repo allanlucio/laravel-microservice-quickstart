@@ -5,6 +5,8 @@ import { httpVideo } from '../../util/http';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
+import genreHttp from '../../util/http/genre-http';
+import { Category } from '../category/Table';
 
 
 
@@ -20,7 +22,7 @@ const columnsDefinition: MUIDataTableColumn[] = [
             customBodyRender(value, tableMeta,updateValue){
                 
                 
-                return value.map((element:any) => element.name).join(", ");
+                return value.map((element: Category) => element.name).join(", ");
             }
         }
     },
@@ -46,15 +48,19 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-
+interface Genre{
+    id: string;
+    name: string;
+}
 
 export const Table: React.FC = ()=>{
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Genre[]>([]);
     
     useEffect(()=>{
-        httpVideo.get('genres').then(
-            response => setData(response.data.data)
+        genreHttp
+            .list<{data: Genre[]}>()
+            .then(({data}) => setData(data.data)
         )
     },[]);
 

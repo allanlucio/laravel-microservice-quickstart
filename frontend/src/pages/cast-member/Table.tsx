@@ -5,6 +5,7 @@ import { httpVideo } from '../../util/http';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
+import castMemberHttp from '../../util/http/cast-member-http';
 
 
 
@@ -41,16 +42,21 @@ const columnsDefinition: MUIDataTableColumn[] = [
     },
 ];
 
-
+interface CastMember{
+    id: string;
+    name: string;
+}
 
 export const Table: React.FC = ()=>{
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<CastMember[]>([]);
     
     useEffect(()=>{
-        httpVideo.get('cast_members').then(
-            response => setData(response.data.data)
+        castMemberHttp
+            .list<{data: CastMember[]}>()
+            .then(({data}) => setData(data.data)
         )
+        
     },[]);
 
     return (
