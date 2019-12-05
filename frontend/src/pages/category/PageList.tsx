@@ -11,11 +11,12 @@ export const List: React.FC = ()=>{
     
     return (
         <Page title = {'Listagem de Categorias'}>
-            <Box dir={'rtl'}>
+            <Box dir={'rtl'} paddingBottom={2}>
                 <Fab 
                 title="Adicionar Categoria" 
                 size="small"
                 component={Link}
+                color="secondary"
                 to='/categories/create'
                 >
                     <AddIcon></AddIcon>

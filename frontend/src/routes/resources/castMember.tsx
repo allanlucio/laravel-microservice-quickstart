@@ -5,7 +5,7 @@ const castMemberRoutes: any[] = [
     
     {
         name:'cast_members.list',
-        label: 'Listar Membros',
+        label: 'Listar Membros de Elenco',
         path:'/cast-members',
         component: CastMemberList,
         exact: true

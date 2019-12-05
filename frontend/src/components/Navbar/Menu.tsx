@@ -19,11 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>({
         }
     }
 }));
-const listRoutes = ['dashboard','categories.list','cast_members.list','genres.list'];
+const listRoutes = {
+    'dashboard':'Dashboard',
+    'categories.list':"Categorias",
+    'cast_members.list':"Membros de elenco",
+    'genres.list': "Gêneros"
+};
 
 export const Menu: React.FC = ()=>{
     
-    const menuRoutes = routes.filter(route => listRoutes.includes(route.name));
+    const menuRoutes = routes.filter(route => Object.keys(listRoutes).includes(route.name));
     const classes = useStyles();
     const[anchorEl,setAnchorEl]=React.useState(null);
     const open = Boolean(anchorEl);
@@ -50,11 +55,11 @@ export const Menu: React.FC = ()=>{
                     transformOrigin={{vertical:'top', horizontal:'center'}}
                     >
                     {
-                        listRoutes.map((routeName,key) => {
+                        Object.keys(listRoutes).map((routeName,key) => {
                                 const route = menuRoutes.find(route => route.name === routeName) as MyRouteProps;
                                 return ( <MenuItem key={key}
                                             onClick={handleClose} component={Link} to={route.path as string}>
-                                            {route.label}
+                                            {listRoutes[routeName]}
                                         </MenuItem>
                                 )
 

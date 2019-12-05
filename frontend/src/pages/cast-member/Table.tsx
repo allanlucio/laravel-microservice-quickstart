@@ -7,6 +7,7 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from '../../util/http/cast-member-http';
 import { CastMember } from '../../util/models/cast-member';
+import { BadgeYes, BadgeNo } from '../../components/Badge';
 
 
 
@@ -27,7 +28,7 @@ const columnsDefinition: MUIDataTableColumn[] = [
             customBodyRender(value, tableMeta,updateValue){
                 let type = castMemberTypeMap[value];
                 
-                return value ? <Chip label={type} color="primary"></Chip>: <Chip color="secondary" label={type}></Chip>;
+                return value ? <BadgeYes label={type}/>: <BadgeNo label={type}/>;
             }
         }
     },

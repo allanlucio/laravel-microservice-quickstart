@@ -52,17 +52,19 @@ export const Form: React.FC = ()=>{
     const classes = useStyles();
     const theme = useTheme();
     const buttonProps: ButtonProps ={
-        variant: 'outlined',
+        variant: 'contained',
+        color: 'secondary',
         className: classes.submit
         
     }
     const {register, handleSubmit, getValues, setValue, watch} = useForm({
         defaultValues: {
-            type: 0
+            type: 0,
+            categories_id : [],
         }
     })
     const [categoriesList, setCategoriesList] = useState<Category[]>([]);
-    const categoriesValue = watch('categories_id') as string[] || [];
+    const categoriesValue = watch('categories_id');
     useEffect(() => {
         categoryHttp.list().then(response => {
             setCategoriesList(response.data.data);
@@ -70,7 +72,9 @@ export const Form: React.FC = ()=>{
         
       }, []);
     
-    
+    useEffect(() => {
+        register({ name: 'categories_id'});  
+    }, [register])
     
     function onSubmit(formData, event){
         
@@ -93,7 +97,7 @@ export const Form: React.FC = ()=>{
             <FormControl className={classes.formControl} fullWidth>
             <InputLabel id="demo-mutiple-chip-label">Categorias</InputLabel>
                 <Select
-                ref={register({ name: 'categories_id'})}  
+                
                 labelId="demo-mutiple-chip-label"
                 id="demo-mutiple-chip"
                 multiple
