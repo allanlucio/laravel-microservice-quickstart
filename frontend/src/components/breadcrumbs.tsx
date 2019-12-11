@@ -22,12 +22,12 @@ const useStyles = makeStyles(theme => ({
     flexDirection: 'column',
   },
   linkRouter:{
-    color:"#4db5ab",
+    color:theme.palette.secondary.main,
     "&:focus, &:active":{
-      color:"#4db5ab"
+      color: theme.palette.secondary.main
     },
     "&:hover":{
-      color:"#055a52"
+      color: theme.palette.secondary.dark
     }
 
   }

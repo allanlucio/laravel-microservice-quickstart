@@ -22,9 +22,9 @@ const categoryRoutes: any[] = [
     ,
     {
         name:'categories.edit',
-        label: 'Editar Categorias',
+        label: 'Editar Categoria',
         path:'/categories/:id/edit',
-        component: CategoryList,
+        component: CategoryForm,
         exact: true
     }
 ]

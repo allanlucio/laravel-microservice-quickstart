@@ -1,9 +1,12 @@
 import * as React from 'react';
-import { TextField, Checkbox, Box, Button, makeStyles, Theme } from '@material-ui/core';
+import {useEffect,useState} from 'react';
+import { TextField, Checkbox, Box, Button, makeStyles, Theme, FormControlLabel } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
-
+import * as yup from '../../util/vendor/yup';
+import { useParams, useHistory } from 'react-router';
+import {useSnackbar} from "notistack"
 const useStyles = makeStyles((theme:Theme)=> {
     return {
         submit: {
@@ -12,24 +15,95 @@ const useStyles = makeStyles((theme:Theme)=> {
     }
 })
 
+const validationSchema = yup.object().shape({
+    name: yup
+            .string()
+            .label("Nome")
+            .required()
+            .max(255)
+});
+
 export const Form: React.FC = ()=>{
     const classes = useStyles();
+    
+
+    const { register,
+            handleSubmit, 
+            getValues,
+            setValue, 
+            errors, 
+            reset, 
+            watch
+        } = useForm({
+            validationSchema,
+            defaultValues: {
+                is_active: true
+            }
+    })
+
+    const snackbar = useSnackbar();
+    const history = useHistory();
+    const {id} = useParams();
+    const [category, setCategory] = useState<{id: string} | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
     const buttonProps: ButtonProps ={
         variant: 'contained',
         color: 'secondary',
-        className: classes.submit
+        className: classes.submit,
+        disabled: loading
         
     }
 
-    const {register, handleSubmit, getValues} = useForm({
-        defaultValues: {
-            is_active: true
+    useEffect(() => {
+        snackbar.enqueueSnackbar('Hello World',{
+            variant: 'success',
+            
+        })
+    }, [])
+
+    useEffect(() => {
+        register({name: "is_active"});
+    }, [register])
+
+    useEffect(() => {
+        if(!id){
+            return ;
         }
-    })
+        setLoading(true)
+        categoryHttp.get(id).then(({data}) => {
+            setCategory(data.data)
+            reset(data.data);
+        }).finally(()=> setLoading(false));
+    }, []);
 
     function onSubmit(formData, event){
-        categoryHttp.create(formData).then((response)=> console.log(response));
+        setLoading(true);
+        const http = category ? 
+            categoryHttp.update(category.id,formData):
+            categoryHttp.create(formData);
+
+        http.then(({data})=> {
+            snackbar.enqueueSnackbar('Categoria Salva com Sucesso!',{
+                variant: 'success',
+            })
+            setTimeout(()=>{
+                event ? (
+                    id? history.replace(`/categories/${data.data.id}/edit`): history.push(`/categories/${data.data.id}/edit`)
+                ): history.push('/categories')
+            })
+            
+
+        })
+        .catch((error)=> {
+            
+            snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
+                variant: 'error',
+            })
+        })
+        .finally(()=>setLoading(false));
     }
+
+    console.log(errors);
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -38,7 +112,12 @@ export const Form: React.FC = ()=>{
                 label='Nome'
                 fullWidth
                 variant={'outlined'}
+                error={errors.name !== undefined}
+                helperText={errors.name && errors.name.message}
+                InputLabelProps={{shrink: true}}
+                disabled={loading}
             />
+            
             <TextField
                 inputRef={register}
                 name='description'
@@ -48,13 +127,28 @@ export const Form: React.FC = ()=>{
                 fullWidth
                 variant={'outlined'}
                 margin={"normal"}
+                InputLabelProps={{shrink: true}}
+                disabled={loading}
             />
 
-            <Checkbox
-                inputRef={register}
-                name="is_active"
-                defaultChecked
-            />Ativo?
+            <FormControlLabel
+                control={
+                    <Checkbox
+                    
+                    name="is_active"
+                    checked={watch("is_active")}
+                    onChange={()=>setValue('is_active', !getValues()['is_active'])}
+                    color={"primary"}
+                    
+                />
+                }
+                label="Ativo?"
+                labelPlacement="end"
+                disabled={loading}
+            />
+                
+            
+            
 
             <Box dir={"rtl"}>
                 <Button color={'primary'} {... buttonProps} onClick={() => onSubmit(getValues(), null)}> Salvar</Button>
