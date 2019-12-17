@@ -42,9 +42,7 @@ export const Form: React.FC = ()=>{
         watch
     } = useForm({
         validationSchema,
-        defaultValues: {
-            type: "0"
-        }
+        
     });
 
     const snackbar = useSnackbar();
@@ -111,8 +109,8 @@ export const Form: React.FC = ()=>{
     };
 
     
-    const type = watch('type')+"";
-    console.log(type);
+    const type = watch('type');
+    console.log("type"+type);
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField

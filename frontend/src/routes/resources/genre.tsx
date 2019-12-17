@@ -24,7 +24,7 @@ const genreRoutes: any[] = [
         name:'genres.edit',
         label: 'Editar Gêneros',
         path:'/genres/:id/edit',
-        component: GenreList,
+        component: GenreForm,
         exact: true
     }
 ]
