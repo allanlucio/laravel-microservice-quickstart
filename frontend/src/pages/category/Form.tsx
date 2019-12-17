@@ -54,12 +54,7 @@ export const Form: React.FC = ()=>{
         
     }
 
-    useEffect(() => {
-        snackbar.enqueueSnackbar('Hello World',{
-            variant: 'success',
-            
-        })
-    }, [])
+    
 
     useEffect(() => {
         register({name: "is_active"});
