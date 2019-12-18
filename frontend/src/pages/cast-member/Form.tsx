@@ -101,7 +101,7 @@ export const Form: React.FC = ()=>{
         })
         .catch((error)=> {
             
-            snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
+            snackbar.enqueueSnackbar('Não foi possível salvar este Membro de elenco',{
                 variant: 'error',
             })
         })
