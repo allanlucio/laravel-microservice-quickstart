@@ -42,13 +42,17 @@ export const Form: React.FC = ()=>{
         watch
     } = useForm({
         validationSchema,
+        defaultValues: {
+            type: "0"
+        }
         
     });
 
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const [category, setCategory] = useState<{id: string} | null>(null)
+    const [castMember, setCastMember] = useState<{id: string} | null>(null)
+    // const [type, setType] = useState("0");
     const [loading, setLoading] = useState<boolean>(false)
     const buttonProps: ButtonProps ={
         variant: 'contained',
@@ -61,25 +65,26 @@ export const Form: React.FC = ()=>{
 
     useEffect(() => {
         register({ name: 'type'})
-    }, [register])
+    }, [register]);
     useEffect(() => {
         if(!id){
             return ;
         }
         setLoading(true)
         castMemberHttp.get(id).then(({data}) => {
-            setCategory(data.data)
+            setCastMember(data.data)
             
             data.data["type"] = data.data["type"]+"";
             console.log(data.data);
+            // setType(data.data["type"]);
             reset(data.data);
         }).finally(()=> setLoading(false));
     }, []);
 
     function onSubmit(formData, event){
         setLoading(true);
-        const http = category ? 
-            castMemberHttp.update(category.id,formData):
+        const http = castMember ? 
+            castMemberHttp.update(castMember.id,formData):
             castMemberHttp.create(formData);
 
         http.then(({data})=> {
@@ -105,12 +110,13 @@ export const Form: React.FC = ()=>{
     
     const handleChange = event => {
         console.log(event.target);
-        setValue(event.target.name, event.target.value, true);
+        setValue(event.target.name, event.target.value, false);
+        
     };
 
     
-    const type = watch('type');
-    console.log("type"+type);
+    // const type = watch('type') || "0";
+    // console.log(type);
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -127,7 +133,7 @@ export const Form: React.FC = ()=>{
         <FormControl component="fieldset" className={classes.formControl} disabled={loading}>
             <FormLabel component="legend">Tipo</FormLabel>
             
-            <RadioGroup defaultValue={type} aria-label="gender" name="type" onChange={handleChange}>
+            <RadioGroup value={watch('type')} aria-label="gender" name="type" onChange={handleChange}>
             <FormControlLabel value="0" control={<Radio color={"primary"}/>} label="Ator" />
             <FormControlLabel value="1" control={<Radio color={"primary"} />} label="Editor" />
             
