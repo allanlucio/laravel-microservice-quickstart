@@ -11,10 +11,11 @@ export const List: React.FC = ()=>{
     
     return (
         <Page title = {'Listagem de Membros de elenco'}>
-            <Box dir={'rtl'}>
+            <Box dir={'rtl'} paddingBottom={2}>
                 <Fab 
                 title="Adicionar Membro" 
                 size="small"
+                color="secondary"
                 component={Link}
                 to='/cast-members/create'
                 >

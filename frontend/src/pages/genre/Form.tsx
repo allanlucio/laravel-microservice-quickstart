@@ -1,12 +1,15 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
-import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, Checkbox, InputLabel, Select, MenuItem, Input, Chip, useTheme } from '@material-ui/core';
+import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, Checkbox, InputLabel, Select, MenuItem, Input, Chip, useTheme, FormHelperText } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import genreHttp from '../../util/http/genre-http';
-import categoryHttp from '../../util/http/category-http';
-import { Category } from '../../util/models/category';
 
+import { Category } from '../../util/models/category';
+import * as yup from '../../util/vendor/yup';
+import { useParams, useHistory } from 'react-router';
+import {useSnackbar} from "notistack"
+import categoryHttp from '../../util/http/category-http';
 
 const useStyles = makeStyles((theme:Theme)=> {
     return {
@@ -48,21 +51,52 @@ function getStyles(name, categories_id, theme) {
     };
   }
 
+const validationSchema = yup.object().shape({
+    name: yup
+            .string()
+            .label("Nome")
+            .required()
+            .max(255),
+    categories_id: yup
+            .array()
+            .label("Categorias")
+            .required()
+});
+
 export const Form: React.FC = ()=>{
     const classes = useStyles();
     const theme = useTheme();
+
+    const { register,
+        handleSubmit, 
+        getValues,
+        setValue, 
+        errors, 
+        reset, 
+        watch
+    } = useForm({
+        validationSchema,
+        defaultValues: {
+            categories_id : [],
+            is_active: true
+        }
+        
+    });
+    const snackbar = useSnackbar();
+    const history = useHistory();
+    const {id} = useParams();
+    const [genre, setGenre] = useState<{id: string} | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    
     const buttonProps: ButtonProps ={
-        variant: 'outlined',
-        className: classes.submit
+        variant: 'contained',
+        color: 'secondary',
+        className: classes.submit,
+        disabled: loading
         
     }
-    const {register, handleSubmit, getValues, setValue, watch} = useForm({
-        defaultValues: {
-            type: 0
-        }
-    })
     const [categoriesList, setCategoriesList] = useState<Category[]>([]);
-    const categoriesValue = watch('categories_id') as string[] || [];
+    const categoriesValue = watch('categories_id');
     useEffect(() => {
         categoryHttp.list().then(response => {
             setCategoriesList(response.data.data);
@@ -70,15 +104,62 @@ export const Form: React.FC = ()=>{
         
       }, []);
     
+    useEffect(() => {
+        register({ name: 'categories_id'});  
+        register({ name: 'is_active'});  
+    }, [register])
     
     
-    function onSubmit(formData, event){
+    useEffect(() => {
+        if(!id){
+            return ;
+        }
+        setLoading(true)
+        setTimeout(()=>{
+            genreHttp.get(id).then(({data}) => {
+                setGenre(data.data)
+                console.log(data.data);
+                let data_reset = data.data;
+                const categories = data_reset.categories.map((category) => category.id);
+                data_reset["categories_id"] = categories;
+                reset(data_reset);
+            }).finally(()=> setLoading(false));
+        },200)
         
-        genreHttp.create(formData).then((response)=> console.log(response));
+    }, [])
+
+
+    function onSubmit(formData, event){
+        setLoading(true);
+        
+        const http = genre ? 
+            genreHttp.update(genre.id,formData):
+            genreHttp.create(formData);
+
+        http.then(({data})=> {
+            snackbar.enqueueSnackbar('Gênero Salva com Sucesso!',{
+                variant: 'success',
+            })
+            setTimeout(()=>{
+                event ? (
+                    id? history.replace(`/genres/${data.data.id}/edit`): history.push(`/genres/${data.data.id}/edit`)
+                ): history.push('/genres')
+            },100)
+            
+
+        })
+        .catch((error)=> {
+            
+            snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
+                variant: 'error',
+            })
+        })
+        .finally(()=>setLoading(false));
     }
     const handleFormChange = event => {
+        console.log(event.target.value);
         
-        setValue(event.target.name, event.target.value, true);
+        setValue(event.target.name, event.target.value, false);
     };
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -88,12 +169,22 @@ export const Form: React.FC = ()=>{
                 label='Nome'
                 fullWidth
                 variant={'outlined'}
+                error={errors.name !== undefined}
+                helperText={errors.name && errors.name.message}
+                InputLabelProps={{shrink: true}}
+                disabled={loading}
             />
 
-            <FormControl className={classes.formControl} fullWidth>
+            <FormControl 
+                className={classes.formControl} 
+                fullWidth 
+                disabled={loading}
+                error={errors.categories_id !== undefined}
+                
+            >
             <InputLabel id="demo-mutiple-chip-label">Categorias</InputLabel>
                 <Select
-                ref={register({ name: 'categories_id'})}  
+                
                 labelId="demo-mutiple-chip-label"
                 id="demo-mutiple-chip"
                 multiple
@@ -122,14 +213,24 @@ export const Form: React.FC = ()=>{
                     </MenuItem>
                 ))}
                 </Select>
+                <FormHelperText>{errors.categories_id && errors.categories_id.message}</FormHelperText>
         </FormControl>
       
-        <Checkbox
-                
-                inputRef={register}
-                name="is_active"
-                defaultChecked
-            />Ativo?
+        <FormControlLabel
+                control={
+                    <Checkbox
+                    
+                    name="is_active"
+                    checked={watch("is_active")}
+                    onChange={()=>setValue('is_active', !getValues()['is_active'])}
+                    color={"primary"}
+                    
+                />
+                }
+                label="Ativo?"
+                labelPlacement="end"
+                disabled={loading}
+            />
         
 
             <Box dir={"rtl"}>

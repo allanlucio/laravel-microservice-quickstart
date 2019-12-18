@@ -10,11 +10,12 @@ import Table from './Table';
 export const List: React.FC = ()=>{
     
     return (
-        <Page title = {'Listagem de Gêneros'}>
-            <Box dir={'rtl'}>
+        <Page title = {'Listagem de Gêneros'} >
+            <Box dir={'rtl'} paddingBottom={2}>
                 <Fab 
                 title="Adicionar Gênero" 
                 size="small"
+                color="secondary"
                 component={Link}
                 to='/genres/create'
                 >

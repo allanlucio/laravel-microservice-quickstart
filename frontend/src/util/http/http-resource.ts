@@ -12,7 +12,8 @@ export default  class HttpResource {
     }
 
     get<T = any>(id){
-        return this.http.get<T>('${this.resource}/${id}');
+        
+        return this.http.get<T>(`${this.resource}/${id}`);
     }
 
     create<T = any>(data){
@@ -20,10 +21,10 @@ export default  class HttpResource {
     }
 
     update<T = any>(id, data){
-        return this.http.put<T>('${this.resource}/${id}',data);
+        return this.http.put<T>(`${this.resource}/${id}`,data);
     }
 
     delete<T = any>(id){
-        return this.http.delete<T>('${this.resource}/${id}');
+        return this.http.delete<T>(`${this.resource}/${id}`);
     }
 }
