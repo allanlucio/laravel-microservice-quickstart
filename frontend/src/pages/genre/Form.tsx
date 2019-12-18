@@ -137,7 +137,7 @@ export const Form: React.FC = ()=>{
             genreHttp.create(formData);
 
         http.then(({data})=> {
-            snackbar.enqueueSnackbar('Gênero Salva com Sucesso!',{
+            snackbar.enqueueSnackbar('Gênero Salvo com Sucesso!',{
                 variant: 'success',
             })
             setTimeout(()=>{
@@ -150,7 +150,7 @@ export const Form: React.FC = ()=>{
         })
         .catch((error)=> {
             
-            snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
+            snackbar.enqueueSnackbar('Não foi possível salvar este Gênero',{
                 variant: 'error',
             })
         })
