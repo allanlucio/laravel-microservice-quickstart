@@ -39,10 +39,24 @@ export const Table: React.FC = ()=>{
     const [data, setData] = useState<Category[]>([]);
     console.log(process.env);
     useEffect(()=>{
-        categoryHttp
-            .list<{data: Category[]}>()
-            .then(({data}) => setData(data.data)
-        )
+        let isSubscribed = true;
+        (async function getCategories(){
+            try{
+                const {data}= await categoryHttp.list<{data: Category[]}>();
+                if(isSubscribed){
+                    setData(data.data);
+                }
+                
+            }catch(error){
+                console.error(error);
+            }
+            
+        })();
+
+        return () => {
+            isSubscribed = false;
+        }
+        
     },[]);
 
     return (

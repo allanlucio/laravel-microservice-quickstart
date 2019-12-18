@@ -111,20 +111,50 @@ export const Form: React.FC = ()=>{
     
     
     useEffect(() => {
-        if(!id){
-            return ;
+        let isSubscribed = true;
+        (async () => {
+            setLoading(true)
+            const promises = [categoryHttp.list()];
+            if(id){
+                promises.push(genreHttp.get(id));
+            }
+
+            try {
+                const [categoriesResponse, genreResponse] = await Promise.all(promises);
+                if(isSubscribed){
+                    setCategoriesList(categoriesResponse.data.data);
+                    if(id){
+                        setGenre(genreResponse.data.data);
+                        let data = genreResponse.data.data;
+                        const categories = data.categories.map((category) => category.id);
+                        data["categories_id"] = categories;
+                        reset(data);
+                    }
+                }
+            }catch(error){
+                console.log(error);
+                snackbar.enqueueSnackbar("Não foi possível carregar as informações",{variant: 'error'});
+            }finally{
+                setLoading(false)
+            }
+        })();
+
+        return () => {
+            isSubscribed = false;
         }
-        setLoading(true)
-        setTimeout(()=>{
-            genreHttp.get(id).then(({data}) => {
-                setGenre(data.data)
-                console.log(data.data);
-                let data_reset = data.data;
-                const categories = data_reset.categories.map((category) => category.id);
-                data_reset["categories_id"] = categories;
-                reset(data_reset);
-            }).finally(()=> setLoading(false));
-        },200)
+        // if(!id){
+        //     return ;
+        // }
+        // setTimeout(()=>{
+        //     genreHttp.get(id).then(({data}) => {
+        //         setGenre(data.data)
+        //         console.log(data.data);
+        //         let data_reset = data.data;
+        //         const categories = data_reset.categories.map((category) => category.id);
+        //         data_reset["categories_id"] = categories;
+        //         reset(data_reset);
+        //     }).finally(()=> setLoading(false));
+        // },200)
         
     }, [])
 

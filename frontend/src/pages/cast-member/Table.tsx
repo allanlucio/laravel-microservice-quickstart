@@ -50,10 +50,26 @@ export const Table: React.FC = ()=>{
     const [data, setData] = useState<CastMember[]>([]);
     
     useEffect(()=>{
-        castMemberHttp
-            .list<{data: CastMember[]}>()
-            .then(({data}) => setData(data.data)
-        )
+        let isSubcribed = true;
+        (async function getCategories(){
+            try{
+                const {data}= await castMemberHttp.list<{data: CastMember[]}>();
+                if(isSubcribed){
+                    setData(data.data);
+                }
+            }catch(error){
+                console.error(error);
+            }
+            
+            
+        })();
+        // castMemberHttp
+        //     .list<{data: CastMember[]}>()
+        //     .then(({data}) => setData(data.data)
+        // )
+        return () => {
+            isSubcribed = false;
+        }
         
     },[]);
 

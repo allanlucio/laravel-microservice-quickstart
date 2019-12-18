@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl } from '@material-ui/core';
+import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, FormHelperText } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import castMemberHttp from '../../util/http/cast-member-http';
@@ -130,7 +130,8 @@ export const Form: React.FC = ()=>{
                 InputLabelProps={{shrink: true}}
                 disabled={loading}
             />
-        <FormControl component="fieldset" className={classes.formControl} disabled={loading}>
+        <FormControl margin={'normal'} component="fieldset" className={classes.formControl} disabled={loading} error={errors.type !== undefined}
+>
             <FormLabel component="legend">Tipo</FormLabel>
             
             <RadioGroup value={watch('type')} aria-label="gender" name="type" onChange={handleChange}>
@@ -138,6 +139,10 @@ export const Form: React.FC = ()=>{
             <FormControlLabel value="1" control={<Radio color={"primary"} />} label="Editor" />
             
             </RadioGroup>
+
+            {
+                errors.type && <FormHelperText id="type-helper-text">{errors.type.message}</FormHelperText>
+            }
             
         </FormControl>
         

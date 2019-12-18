@@ -24,8 +24,6 @@ const validationSchema = yup.object().shape({
 });
 
 export const Form: React.FC = ()=>{
-    const classes = useStyles();
-    
 
     const { register,
             handleSubmit, 
@@ -41,12 +39,13 @@ export const Form: React.FC = ()=>{
             }
     })
 
+    const classes = useStyles();
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [category, setCategory] = useState<{id: string} | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const buttonProps: ButtonProps ={
+    const buttonProps: ButtonProps = {
         variant: 'contained',
         color: 'secondary',
         className: classes.submit,
@@ -64,38 +63,73 @@ export const Form: React.FC = ()=>{
         if(!id){
             return ;
         }
-        setLoading(true)
-        categoryHttp.get(id).then(({data}) => {
-            setCategory(data.data)
-            reset(data.data);
-        }).finally(()=> setLoading(false));
+
+        (async function getCategory(){
+            setLoading(true);
+            try {
+                const {data} = await categoryHttp.get(id);
+                setCategory(data.data)
+                reset(data.data);
+            } catch (error) {
+                console.error(error);
+                snackbar.enqueueSnackbar(
+                    "Não foi possível carregar as informações",
+                    {variant: 'error'}
+                );
+            }finally{
+                setLoading(false);
+            }
+
+        })();
+        // getCategory();
+        
     }, []);
 
-    function onSubmit(formData, event){
+    async function onSubmit(formData, event){
         setLoading(true);
-        const http = category ? 
+        try{
+            const http = category ? 
             categoryHttp.update(category.id,formData):
             categoryHttp.create(formData);
 
-        http.then(({data})=> {
+            const {data} = await http;
             snackbar.enqueueSnackbar('Categoria Salva com Sucesso!',{
                 variant: 'success',
-            })
+            });
             setTimeout(()=>{
                 event ? (
                     id? history.replace(`/categories/${data.data.id}/edit`): history.push(`/categories/${data.data.id}/edit`)
                 ): history.push('/categories')
-            })
-            
-
-        })
-        .catch((error)=> {
-            
+            });
+        } catch(error){
+            console.error(error);
             snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
                 variant: 'error',
             })
-        })
-        .finally(()=>setLoading(false));
+        }finally{
+            setLoading(false);
+        }
+        
+
+        // http.then(({data})=> {
+        //     snackbar.enqueueSnackbar('Categoria Salva com Sucesso!',{
+        //         variant: 'success',
+        //     })
+        //     setTimeout(()=>{
+        //         event ? (
+        //             id? history.replace(`/categories/${data.data.id}/edit`): history.push(`/categories/${data.data.id}/edit`)
+        //         ): history.push('/categories')
+        //     })
+            
+
+        // })
+        // .catch((error)=> {
+            
+        //     snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
+        //         variant: 'error',
+        //     })
+        // })
+        // .finally(()=>setLoading(false));
     }
 
     console.log(errors);
