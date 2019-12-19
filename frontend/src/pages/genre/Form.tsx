@@ -4,12 +4,11 @@ import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormC
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import genreHttp from '../../util/http/genre-http';
-
-import { Category } from '../../util/models/category';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
 import categoryHttp from '../../util/http/category-http';
+import { Genre, Category, ListResponse } from '../../util/models';
 
 const useStyles = makeStyles((theme:Theme)=> {
     return {
@@ -85,7 +84,7 @@ export const Form: React.FC = ()=>{
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const [genre, setGenre] = useState<{id: string} | null>(null);
+    const [genre, setGenre] = useState<Genre | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     
     const buttonProps: ButtonProps ={

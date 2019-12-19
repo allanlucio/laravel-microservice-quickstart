@@ -6,8 +6,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from '../../util/http/cast-member-http';
-import { CastMember } from '../../util/models/cast-member';
 import { BadgeYes, BadgeNo } from '../../components/Badge';
+import { CastMember } from '../../util/models';
 
 
 

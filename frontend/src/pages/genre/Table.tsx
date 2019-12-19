@@ -6,8 +6,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import genreHttp from '../../util/http/genre-http';
-import { Genre } from '../../util/models/genre';
-import { Category } from '../../util/models/category';
+import { Category, Genre } from '../../util/models';
+
 
 
 

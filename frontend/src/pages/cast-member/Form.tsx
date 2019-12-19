@@ -7,6 +7,7 @@ import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
+import { CastMember } from '../../util/models';
 
 const useStyles = makeStyles((theme:Theme)=> {
     return {
@@ -33,6 +34,7 @@ const validationSchema = yup.object().shape({
 
 export const Form: React.FC = ()=>{
     const classes = useStyles();
+    const {id} = useParams();
     const { register,
         handleSubmit, 
         getValues,
@@ -43,15 +45,15 @@ export const Form: React.FC = ()=>{
     } = useForm({
         validationSchema,
         defaultValues: {
-            type: "0"
+            type: id?"":"0"
         }
         
     });
 
     const snackbar = useSnackbar();
     const history = useHistory();
-    const {id} = useParams();
-    const [castMember, setCastMember] = useState<{id: string} | null>(null)
+    
+    const [castMember, setCastMember] = useState<CastMember | null>(null)
     // const [type, setType] = useState("0");
     const [loading, setLoading] = useState<boolean>(false)
     const buttonProps: ButtonProps ={
