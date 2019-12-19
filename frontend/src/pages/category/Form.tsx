@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useEffect,useState} from 'react';
-import { TextField, Checkbox, Box, Button, makeStyles, Theme, FormControlLabel } from '@material-ui/core';
+import { TextField, Checkbox, Box, Button, makeStyles, Theme, FormControlLabel, Grid } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import categoryHttp from '../../util/http/category-http';
@@ -9,6 +9,7 @@ import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
 import { Category } from '../../util/models';
 import SubmitActions from '../../components/SubmitActions';
+import { DefaultForm } from '../../components/DefaultForm';
 
 
 
@@ -122,57 +123,55 @@ export const Form: React.FC = ()=>{
 
     console.log(errors);
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-                inputRef={register}
-                name='name'
-                label='Nome'
-                fullWidth
-                variant={'outlined'}
-                error={errors.name !== undefined}
-                helperText={errors.name && errors.name.message}
-                InputLabelProps={{shrink: true}}
-                disabled={loading}
-            />
-            
-            <TextField
-                inputRef={register}
-                name='description'
-                label='Descrição'
-                multiline
-                rows="4"
-                fullWidth
-                variant={'outlined'}
-                margin={"normal"}
-                InputLabelProps={{shrink: true}}
-                disabled={loading}
-            />
-
-            <FormControlLabel
-                control={
-                    <Checkbox
+        <DefaultForm>
+                    <TextField
+                        inputRef={register}
+                        name='name'
+                        label='Nome'
+                        fullWidth
+                        variant={'outlined'}
+                        error={errors.name !== undefined}
+                        helperText={errors.name && errors.name.message}
+                        InputLabelProps={{shrink: true}}
+                        disabled={loading}
+                    />
                     
-                    name="is_active"
-                    checked={watch("is_active")}
-                    onChange={()=>setValue('is_active', !getValues()['is_active'])}
-                    color={"primary"}
+                    <TextField
+                        inputRef={register}
+                        name='description'
+                        label='Descrição'
+                        multiline
+                        rows="4"
+                        fullWidth
+                        variant={'outlined'}
+                        margin={"normal"}
+                        InputLabelProps={{shrink: true}}
+                        disabled={loading}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                            
+                            name="is_active"
+                            checked={watch("is_active")}
+                            onChange={()=>setValue('is_active', !getValues()['is_active'])}
+                            color={"primary"}
+                            
+                        />
+                        }
+                        label="Ativo?"
+                        labelPlacement="end"
+                        disabled={loading}
+                    />
+                        
                     
-                />
-                }
-                label="Ativo?"
-                labelPlacement="end"
-                disabled={loading}
-            />
-                
-            
-            <SubmitActions 
-                disabledButtons={loading} 
-                handleSave={() => triggerValidation().then( isValid => {
-                    isValid && onSubmit(getValues(), null)}
-                ) }/>
-
-
-        </form>
+                    <SubmitActions 
+                        disabledButtons={loading} 
+                        handleSave={() => triggerValidation().then( isValid => {
+                            isValid && onSubmit(getValues(), null)}
+                        ) }/>
+       </DefaultForm>
     );
 }
 

@@ -133,19 +133,6 @@ export const Form: React.FC = ()=>{
         return () => {
             isSubscribed = false;
         }
-        // if(!id){
-        //     return ;
-        // }
-        // setTimeout(()=>{
-        //     genreHttp.get(id).then(({data}) => {
-        //         setGenre(data.data)
-        //         console.log(data.data);
-        //         let data_reset = data.data;
-        //         const categories = data_reset.categories.map((category) => category.id);
-        //         data_reset["categories_id"] = categories;
-        //         reset(data_reset);
-        //     }).finally(()=> setLoading(false));
-        // },200)
         
     }, [])
 
