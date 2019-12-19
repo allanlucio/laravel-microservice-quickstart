@@ -8,13 +8,9 @@ import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
 import { Category } from '../../util/models';
-const useStyles = makeStyles((theme:Theme)=> {
-    return {
-        submit: {
-            margin: theme.spacing(1)
-        }
-    }
-})
+import SubmitActions from '../../components/SubmitActions';
+
+
 
 const validationSchema = yup.object().shape({
     name: yup
@@ -32,7 +28,8 @@ export const Form: React.FC = ()=>{
             setValue, 
             errors, 
             reset, 
-            watch
+            watch,
+            triggerValidation
         } = useForm({
             validationSchema,
             defaultValues: {
@@ -40,21 +37,11 @@ export const Form: React.FC = ()=>{
             }
     })
 
-    const classes = useStyles();
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [category, setCategory] = useState<Category | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const buttonProps: ButtonProps = {
-        variant: 'contained',
-        color: 'secondary',
-        className: classes.submit,
-        disabled: loading
-        
-    }
-
-    
 
     useEffect(() => {
         register({name: "is_active"});
@@ -178,13 +165,12 @@ export const Form: React.FC = ()=>{
             />
                 
             
-            
+            <SubmitActions 
+                disabledButtons={loading} 
+                handleSave={() => triggerValidation().then( isValid => {
+                    isValid && onSubmit(getValues(), null)}
+                ) }/>
 
-            <Box dir={"rtl"}>
-                <Button color={'primary'} {... buttonProps} onClick={() => onSubmit(getValues(), null)}> Salvar</Button>
-                <Button {... buttonProps} type="submit"> Salvar e continuar editando</Button>
-                
-            </Box>
 
         </form>
     );

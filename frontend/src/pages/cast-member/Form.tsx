@@ -1,19 +1,16 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, FormHelperText } from '@material-ui/core';
-import { ButtonProps } from '@material-ui/core/Button';
+import { TextField, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, FormHelperText } from '@material-ui/core';
 import useForm from "react-hook-form";
 import castMemberHttp from '../../util/http/cast-member-http';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
 import { CastMember } from '../../util/models';
+import SubmitActions from '../../components/SubmitActions';
 
 const useStyles = makeStyles((theme:Theme)=> {
     return {
-        submit: {
-            margin: theme.spacing(1)
-        },
         formControl: {
             margin: theme.spacing(3),
         },
@@ -41,7 +38,8 @@ export const Form: React.FC = ()=>{
         setValue, 
         errors, 
         reset, 
-        watch
+        watch,
+        triggerValidation
     } = useForm({
         validationSchema,
         defaultValues: {
@@ -56,14 +54,6 @@ export const Form: React.FC = ()=>{
     const [castMember, setCastMember] = useState<CastMember | null>(null)
     // const [type, setType] = useState("0");
     const [loading, setLoading] = useState<boolean>(false)
-    const buttonProps: ButtonProps ={
-        variant: 'contained',
-        color: 'secondary',
-        className: classes.submit,
-        disabled: loading
-        
-    }
-
 
     useEffect(() => {
         register({ name: 'type'})
@@ -116,9 +106,6 @@ export const Form: React.FC = ()=>{
         
     };
 
-    
-    // const type = watch('type') || "0";
-    // console.log(type);
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
@@ -149,11 +136,11 @@ export const Form: React.FC = ()=>{
         </FormControl>
         
 
-            <Box dir={"rtl"}>
-                <Button {... buttonProps} onClick={() => onSubmit(getValues(), null)}> Salvar</Button>
-                <Button {... buttonProps} type="submit"> Salvar e continuar editando</Button>
-                
-            </Box>
+        <SubmitActions 
+                disabledButtons={loading} 
+                handleSave={() => triggerValidation().then( isValid => {
+                    isValid && onSubmit(getValues(), null)}
+                ) }/>
 
         </form>
     );
