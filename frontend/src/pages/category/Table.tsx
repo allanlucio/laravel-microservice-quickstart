@@ -86,7 +86,7 @@ export const Table: React.FC = ()=>{
     },[]);
 
     return (
-       <DefaultTable loading={loading} title="Listagem de categorias" columns={columnsDefinition} data={data}/>
+       <DefaultTable loading={loading} title="Listagem de categorias" columns={columnsDefinition} data={data} options={{responsive: "scrollMaxHeight"}} />
     );
 }
 
