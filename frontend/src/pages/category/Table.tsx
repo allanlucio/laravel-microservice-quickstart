@@ -6,7 +6,7 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
 import { Category, ListResponse } from '../../util/models';
-
+import DefaultTable from '../../components/Table';
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -61,7 +61,7 @@ export const Table: React.FC = ()=>{
     },[]);
 
     return (
-       <MUIDataTable title="Listagem de categorias" columns={columnsDefinition} data={data}/>
+       <DefaultTable title="Listagem de categorias" columns={columnsDefinition} data={data}/>
     );
 }
 
