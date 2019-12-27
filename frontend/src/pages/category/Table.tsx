@@ -7,6 +7,7 @@ import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
 import { Category, ListResponse } from '../../util/models';
 import DefaultTable, {TableColumn} from '../../components/Table';
+import { useSnackbar } from 'notistack';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -54,12 +55,15 @@ const columnsDefinition: TableColumn[] = [
 ];
 
 export const Table: React.FC = ()=>{
-
+    
+    const snackbar = useSnackbar();
     const [data, setData] = useState<Category[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     console.log(process.env);
     useEffect(()=>{
         let isSubscribed = true;
         (async function getCategories(){
+            setLoading(true);
             try{
                 const {data}= await categoryHttp.list<ListResponse<Category>>();
                 if(isSubscribed){
@@ -68,6 +72,9 @@ export const Table: React.FC = ()=>{
                 
             }catch(error){
                 console.error(error);
+                snackbar.enqueueSnackbar("Não foi possivel carregar as informações",{variant:"error"});
+            }finally{
+                setLoading(false);
             }
             
         })();
@@ -79,7 +86,7 @@ export const Table: React.FC = ()=>{
     },[]);
 
     return (
-       <DefaultTable title="Listagem de categorias" columns={columnsDefinition} data={data}/>
+       <DefaultTable loading={loading} title="Listagem de categorias" columns={columnsDefinition} data={data}/>
     );
 }
 
