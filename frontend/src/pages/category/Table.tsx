@@ -6,16 +6,26 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
 import { Category, ListResponse } from '../../util/models';
-import DefaultTable from '../../components/Table';
+import DefaultTable, {TableColumn} from '../../components/Table';
 
-const columnsDefinition: MUIDataTableColumn[] = [
+const columnsDefinition: TableColumn[] = [
+    {
+        name:'id',
+        label:'ID',
+        width:"30%",
+        options:{
+            sort: false
+        }
+    },
     {
         name:'name',
-        label:'Nome'
+        label:'Nome',
+        width:"43%"
     },
     {
         name:'is_active',
         label:'Ativo?',
+        width:"4%",
         options:{
             customBodyRender(value, tableMeta,updateValue){
                 
@@ -26,12 +36,20 @@ const columnsDefinition: MUIDataTableColumn[] = [
     {
         name:'created_at',
         label:'Criado em',
+        width:"10%",
         options:{
             customBodyRender(value, tableMeta,updateValue){
                 
                 return <span>{format(parseISO(value),"dd/MM/yyyy")}</span>
             }
         }
+    },
+    {
+        name:'actions',
+        label:'Ações',
+        width:"13%",
+          
+        
     },
 ];
 
