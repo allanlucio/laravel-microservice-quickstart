@@ -6,8 +6,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from '../../util/http/cast-member-http';
-import { CastMember } from '../../util/models/cast-member';
 import { BadgeYes, BadgeNo } from '../../components/Badge';
+import { CastMember } from '../../util/models';
 
 
 
@@ -50,10 +50,26 @@ export const Table: React.FC = ()=>{
     const [data, setData] = useState<CastMember[]>([]);
     
     useEffect(()=>{
-        castMemberHttp
-            .list<{data: CastMember[]}>()
-            .then(({data}) => setData(data.data)
-        )
+        let isSubcribed = true;
+        (async function getCategories(){
+            try{
+                const {data}= await castMemberHttp.list<{data: CastMember[]}>();
+                if(isSubcribed){
+                    setData(data.data);
+                }
+            }catch(error){
+                console.error(error);
+            }
+            
+            
+        })();
+        // castMemberHttp
+        //     .list<{data: CastMember[]}>()
+        //     .then(({data}) => setData(data.data)
+        // )
+        return () => {
+            isSubcribed = false;
+        }
         
     },[]);
 

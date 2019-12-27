@@ -6,8 +6,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import genreHttp from '../../util/http/genre-http';
-import { Genre } from '../../util/models/genre';
-import { Category } from '../../util/models/category';
+import { Category, Genre } from '../../util/models';
+
 
 
 
@@ -56,10 +56,24 @@ export const Table: React.FC = ()=>{
     const [data, setData] = useState<Genre[]>([]);
     
     useEffect(()=>{
-        genreHttp
-            .list<{data: Genre[]}>()
-            .then(({data}) => setData(data.data)
-        )
+        let isSubcribed = true;
+        (async function getCategories(){
+            try{
+                const {data}= await genreHttp.list<{data: Genre[]}>();
+                if(isSubcribed){
+                    setData(data.data);
+                }
+                
+            }catch(error){
+                console.error(error);
+            }
+            
+        })();
+
+        return () => {
+            isSubcribed = false;
+        }
+        
     },[]);
 
     return (

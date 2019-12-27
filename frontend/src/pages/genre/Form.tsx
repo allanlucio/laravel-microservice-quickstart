@@ -1,21 +1,18 @@
 import * as React from 'react';
 import {useEffect, useState} from "react";
-import { TextField, Box, Button, makeStyles, Theme, FormLabel, RadioGroup, FormControlLabel, Radio, FormControl, Checkbox, InputLabel, Select, MenuItem, Input, Chip, useTheme, FormHelperText } from '@material-ui/core';
+import { TextField, makeStyles, Theme, FormControlLabel, FormControl, Checkbox, InputLabel, Select, MenuItem, Input, Chip, useTheme, FormHelperText } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
 import genreHttp from '../../util/http/genre-http';
-
-import { Category } from '../../util/models/category';
 import * as yup from '../../util/vendor/yup';
 import { useParams, useHistory } from 'react-router';
 import {useSnackbar} from "notistack"
 import categoryHttp from '../../util/http/category-http';
+import { Genre, Category, ListResponse } from '../../util/models';
+import SubmitActions from '../../components/SubmitActions';
 
 const useStyles = makeStyles((theme:Theme)=> {
     return {
-        submit: {
-            margin: theme.spacing(1)
-        },
         formControl: {
             margin: theme.spacing(1),
         },
@@ -73,7 +70,8 @@ export const Form: React.FC = ()=>{
         setValue, 
         errors, 
         reset, 
-        watch
+        watch,
+        triggerValidation
     } = useForm({
         validationSchema,
         defaultValues: {
@@ -85,16 +83,9 @@ export const Form: React.FC = ()=>{
     const snackbar = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const [genre, setGenre] = useState<{id: string} | null>(null);
+    const [genre, setGenre] = useState<Genre | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     
-    const buttonProps: ButtonProps ={
-        variant: 'contained',
-        color: 'secondary',
-        className: classes.submit,
-        disabled: loading
-        
-    }
     const [categoriesList, setCategoriesList] = useState<Category[]>([]);
     const categoriesValue = watch('categories_id');
     useEffect(() => {
@@ -111,20 +102,37 @@ export const Form: React.FC = ()=>{
     
     
     useEffect(() => {
-        if(!id){
-            return ;
+        let isSubscribed = true;
+        (async () => {
+            setLoading(true)
+            const promises = [categoryHttp.list()];
+            if(id){
+                promises.push(genreHttp.get(id));
+            }
+
+            try {
+                const [categoriesResponse, genreResponse] = await Promise.all(promises);
+                if(isSubscribed){
+                    setCategoriesList(categoriesResponse.data.data);
+                    if(id){
+                        setGenre(genreResponse.data.data);
+                        let data = genreResponse.data.data;
+                        const categories = data.categories.map((category) => category.id);
+                        data["categories_id"] = categories;
+                        reset(data);
+                    }
+                }
+            }catch(error){
+                console.log(error);
+                snackbar.enqueueSnackbar("Não foi possível carregar as informações",{variant: 'error'});
+            }finally{
+                setLoading(false)
+            }
+        })();
+
+        return () => {
+            isSubscribed = false;
         }
-        setLoading(true)
-        setTimeout(()=>{
-            genreHttp.get(id).then(({data}) => {
-                setGenre(data.data)
-                console.log(data.data);
-                let data_reset = data.data;
-                const categories = data_reset.categories.map((category) => category.id);
-                data_reset["categories_id"] = categories;
-                reset(data_reset);
-            }).finally(()=> setLoading(false));
-        },200)
         
     }, [])
 
@@ -233,11 +241,11 @@ export const Form: React.FC = ()=>{
             />
         
 
-            <Box dir={"rtl"}>
-                <Button {... buttonProps} onClick={() => onSubmit(getValues(), null)}> Salvar</Button>
-                <Button {... buttonProps} type="submit"> Salvar e continuar editando</Button>
-                
-            </Box>
+        <SubmitActions 
+                disabledButtons={loading} 
+                handleSave={() => triggerValidation().then( isValid => {
+                    isValid && onSubmit(getValues(), null)}
+                ) }/>
 
         </form>
     );

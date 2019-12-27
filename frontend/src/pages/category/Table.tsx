@@ -5,7 +5,8 @@ import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
-import { Category } from '../../util/models/category';
+import { Category, ListResponse } from '../../util/models';
+
 
 const columnsDefinition: MUIDataTableColumn[] = [
     {
@@ -39,10 +40,24 @@ export const Table: React.FC = ()=>{
     const [data, setData] = useState<Category[]>([]);
     console.log(process.env);
     useEffect(()=>{
-        categoryHttp
-            .list<{data: Category[]}>()
-            .then(({data}) => setData(data.data)
-        )
+        let isSubscribed = true;
+        (async function getCategories(){
+            try{
+                const {data}= await categoryHttp.list<ListResponse<Category>>();
+                if(isSubscribed){
+                    setData(data.data);
+                }
+                
+            }catch(error){
+                console.error(error);
+            }
+            
+        })();
+
+        return () => {
+            isSubscribed = false;
+        }
+        
     },[]);
 
     return (
