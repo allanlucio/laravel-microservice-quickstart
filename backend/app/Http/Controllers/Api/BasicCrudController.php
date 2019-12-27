@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-
+use App\Models\Category;
+use EloquentFilter\Filterable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\Request as IlluminateRequest;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Request as IlluminateRequest;
 abstract class BasicCrudController extends Controller
 {
 
-    protected $paginationSize = 15;
+    protected $defaultPerPage = 15;
 
     protected abstract function model();
     protected abstract function rulesStore(): array;
@@ -19,15 +21,27 @@ abstract class BasicCrudController extends Controller
     protected abstract function resource();
     protected abstract function resourceCollection();
 
-    public function index()
+    public function index(Request $request)
     {
 
-        $collection = !$this->paginationSize ? $this->model()::all(): $this->model()::paginate($this->paginationSize);
+        $perPage = (int)$request->get('per_page',$this->defaultPerPage);
+        $hasFilter = in_array(Filterable::class, class_uses($this->model));
+        // Category::filter(\Request::all())->get();
+        $query= $this->queryBuilder();
+        if($hasFilter){
+            $query = $query->filter($request->all());
+        }
+
+        $data = $request->has('all') || !$this->defaultPerPage
+            ? $query->get()
+            : $query->paginate($perPage);
+
+        // $collection = !$this->perPage ? $this->model()::all(): $this->model()::paginate($perPage);
 
         $refClass = new \ReflectionClass($this->resourceCollection());
         $resourceCollectionClass = $this->resourceCollection();
 
-        return $refClass->isSubClassOf(ResourceCollection::class) ? new $resourceCollectionClass($collection): $resourceCollectionClass::collection($collection);
+        return $refClass->isSubClassOf(ResourceCollection::class) ? new $resourceCollectionClass($data): $resourceCollectionClass::collection($data);
 
     }
 
@@ -74,5 +88,9 @@ abstract class BasicCrudController extends Controller
         $obj->delete();
 
         return response()->noContent();
+    }
+
+    protected function queryBuilder(): Builder{
+        return $this->model()::query();
     }
 }
