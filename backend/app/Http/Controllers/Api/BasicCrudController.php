@@ -25,7 +25,7 @@ abstract class BasicCrudController extends Controller
     {
 
         $perPage = (int)$request->get('per_page',$this->defaultPerPage);
-        $hasFilter = in_array(Filterable::class, class_uses($this->model));
+        $hasFilter = in_array(Filterable::class, class_uses($this->model()));
         // Category::filter(\Request::all())->get();
         $query= $this->queryBuilder();
         if($hasFilter){

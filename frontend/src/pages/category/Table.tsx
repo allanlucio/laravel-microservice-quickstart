@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useState,useEffect} from "react";
+import {useState,useEffect, useRef} from "react";
 import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
@@ -8,6 +8,20 @@ import categoryHttp from '../../util/http/category-http';
 import { Category, ListResponse } from '../../util/models';
 import DefaultTable, {TableColumn} from '../../components/Table';
 import { useSnackbar } from 'notistack';
+import { Link } from 'react-router-dom';
+import EditIcon from "@material-ui/icons/Edit";
+
+
+interface Pagination{
+    page: number,
+    total: number,
+    per_page: number
+}
+
+interface SearchState {
+    search: string;
+    pagination: Pagination
+}
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -49,6 +63,13 @@ const columnsDefinition: TableColumn[] = [
         name:'actions',
         label:'Ações',
         width:"13%",
+        options:{
+            customBodyRender(value, tableMeta,updateValue){
+                
+                const id = tableMeta.rowData[0];
+                return <Link to={`/categories/${id}/edit`}>  <EditIcon color={'primary'}></EditIcon></Link>
+            }
+        }
           
         
     },
@@ -57,17 +78,49 @@ const columnsDefinition: TableColumn[] = [
 export const Table: React.FC = ()=>{
     
     const snackbar = useSnackbar();
+    const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    console.log(process.env);
+    const [searchState, setSearchState] = useState<SearchState>({
+        search: '',
+        pagination:{
+            page:1,
+            total:0,
+            per_page: 10
+        }
+    });
+    
+
+    
+
     useEffect(()=>{
-        let isSubscribed = true;
-        (async function getCategories(){
-            setLoading(true);
+        subscribed.current = true;
+        getData();
+        return () => {
+            subscribed.current = false;
+        }
+    },[searchState.search, searchState.pagination.page, searchState.pagination.per_page]);
+
+    async function getData(){
+        setLoading(true);
             try{
-                const {data}= await categoryHttp.list<ListResponse<Category>>();
-                if(isSubscribed){
+                const {data}= await categoryHttp.list<ListResponse<Category>>({
+                    queryParams:{
+                        search: searchState.search,
+                        page: searchState.pagination.page,
+                        per_page: searchState.pagination.per_page
+
+                    }
+                });
+                if(subscribed.current){
                     setData(data.data);
+                    setSearchState((prevState)=>({
+                        ...prevState,
+                        pagination: {
+                            ...prevState.pagination,
+                            total: data.meta.total
+                        }
+                    }));
                 }
                 
             }catch(error){
@@ -76,17 +129,41 @@ export const Table: React.FC = ()=>{
             }finally{
                 setLoading(false);
             }
-            
-        })();
-
-        return () => {
-            isSubscribed = false;
-        }
-        
-    },[]);
-
+    }
     return (
-       <DefaultTable loading={loading} title="Listagem de categorias" columns={columnsDefinition} data={data} options={{responsive: "scrollMaxHeight"}} />
+       <DefaultTable 
+            loading={loading} 
+            title="Listagem de categorias" 
+            columns={columnsDefinition} 
+            data={data} 
+            options={{
+                serverSide:true,
+                responsive: "scrollMaxHeight",
+                searchText: searchState.search,
+                page: searchState.pagination.page-1,
+                rowsPerPage: searchState.pagination.per_page,
+                count: searchState.pagination.total,
+                onSearchChange: (value) => setSearchState((prevState)=>({
+                    ...prevState,
+                    search:value
+                })),
+                onChangePage: (page) => setSearchState((prevState)=>({
+                    ...prevState,
+                    pagination:{
+                        ...prevState.pagination,
+                        page:page +1
+                    }
+                })),
+                onChangeRowsPerPage: (perPage) => setSearchState((prevState)=>({
+                    ...prevState,
+                    pagination:{
+                        ...prevState.pagination,
+                        per_page:perPage
+                    }
+                })),
+
+            }} 
+        />
     );
 }
 
