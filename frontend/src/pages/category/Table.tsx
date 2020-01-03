@@ -13,14 +13,21 @@ import EditIcon from "@material-ui/icons/Edit";
 
 
 interface Pagination{
-    page: number,
-    total: number,
+    page: number;
+    total: number;
     per_page: number
+}
+
+interface Order {
+    sort: string | null;
+    dir: string | null;
 }
 
 interface SearchState {
     search: string;
-    pagination: Pagination
+    pagination: Pagination;
+    order: Order;
+
 }
 
 const columnsDefinition: TableColumn[] = [
@@ -87,11 +94,30 @@ export const Table: React.FC = ()=>{
             page:1,
             total:0,
             per_page: 10
+        },
+        order:{
+            sort:null,
+            dir: null
         }
     });
     
 
-    
+    const columns = columnsDefinition.map(column => {
+        if(column.name === searchState.order.sort){
+
+            return {
+                ...column,
+                options:{
+                    ...column.options,
+                    sortDirection:searchState.order.dir as any
+                }
+            };
+            
+        }
+
+        return column;
+        
+    });
 
     useEffect(()=>{
         subscribed.current = true;
@@ -99,7 +125,7 @@ export const Table: React.FC = ()=>{
         return () => {
             subscribed.current = false;
         }
-    },[searchState.search, searchState.pagination.page, searchState.pagination.per_page]);
+    },[searchState.search, searchState.pagination.page, searchState.pagination.per_page, searchState.order]);
 
     async function getData(){
         setLoading(true);
@@ -108,7 +134,9 @@ export const Table: React.FC = ()=>{
                     queryParams:{
                         search: searchState.search,
                         page: searchState.pagination.page,
-                        per_page: searchState.pagination.per_page
+                        per_page: searchState.pagination.per_page,
+                        sort: searchState.order.sort,
+                        dir: searchState.order.dir,
 
                     }
                 });
@@ -134,7 +162,7 @@ export const Table: React.FC = ()=>{
        <DefaultTable 
             loading={loading} 
             title="Listagem de categorias" 
-            columns={columnsDefinition} 
+            columns={columns} 
             data={data} 
             options={{
                 serverSide:true,
@@ -159,6 +187,14 @@ export const Table: React.FC = ()=>{
                     pagination:{
                         ...prevState.pagination,
                         per_page:perPage
+                    }
+                })),
+                onColumnSortChange: (changedColumn, direction) => setSearchState((prevState)=>({
+                    ...prevState,
+                    order:{
+                        sort:changedColumn,
+                        dir:direction.includes('desc')? "desc":'asc',
+                        
                     }
                 })),
 

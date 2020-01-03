@@ -18,12 +18,14 @@ abstract class DefaultModelFilter extends ModelFilter
     }
 
     public function sort($column){
+
         if(method_exists($this, $method = 'sortBy'.Str::studly($column))){
             $this->$method();
         }
 
         if($this->isSortable($column)){
             $dir = strtolower($this->input('dir') =='asc' ? 'ASC': 'DESC');
+
             $this->orderBy($column, $dir);
         }
     }
