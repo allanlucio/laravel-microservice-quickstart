@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {useState,useEffect, useRef} from "react";
-import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
@@ -10,6 +9,7 @@ import DefaultTable, {TableColumn} from '../../components/Table';
 import { useSnackbar } from 'notistack';
 import { Link } from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
+import { FilterResetButton } from '../../components/Table/FilterResetButton';
 
 
 interface Pagination{
@@ -83,12 +83,8 @@ const columnsDefinition: TableColumn[] = [
 ];
 
 export const Table: React.FC = ()=>{
-    
-    const snackbar = useSnackbar();
-    const subscribed = useRef(true);
-    const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [searchState, setSearchState] = useState<SearchState>({
+
+    const inititalState = {
         search: '',
         pagination:{
             page:1,
@@ -99,7 +95,13 @@ export const Table: React.FC = ()=>{
             sort:null,
             dir: null
         }
-    });
+    };
+    
+    const snackbar = useSnackbar();
+    const subscribed = useRef(true);
+    const [data, setData] = useState<Category[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [searchState, setSearchState] = useState<SearchState>(inititalState);
     
 
     const columns = columnsDefinition.map(column => {
@@ -130,6 +132,7 @@ export const Table: React.FC = ()=>{
     async function getData(){
         setLoading(true);
             try{
+                
                 const {data}= await categoryHttp.list<ListResponse<Category>>({
                     queryParams:{
                         search: searchState.search,
@@ -152,8 +155,13 @@ export const Table: React.FC = ()=>{
                 }
                 
             }catch(error){
-                console.error(error);
-                snackbar.enqueueSnackbar("Não foi possivel carregar as informações",{variant:"error"});
+                
+                if(categoryHttp.isCancelledRequest(error)){
+                    return ;
+                }
+                snackbar.enqueueSnackbar(
+                    "Não foi possivel carregar as informações",
+                    {variant:"error"});
             }finally{
                 setLoading(false);
             }
@@ -171,9 +179,20 @@ export const Table: React.FC = ()=>{
                 page: searchState.pagination.page-1,
                 rowsPerPage: searchState.pagination.per_page,
                 count: searchState.pagination.total,
+                customToolbar: () =>(
+                    <FilterResetButton handleClick={
+                        ()=>{
+                            setSearchState(inititalState);
+                        }
+                    }/>
+                ),
                 onSearchChange: (value) => setSearchState((prevState)=>({
                     ...prevState,
-                    search:value
+                    search:value,
+                    pagination: {
+                        ...prevState.pagination,
+                        page: 1
+                    }
                 })),
                 onChangePage: (page) => setSearchState((prevState)=>({
                     ...prevState,

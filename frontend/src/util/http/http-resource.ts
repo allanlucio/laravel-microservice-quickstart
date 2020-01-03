@@ -1,5 +1,6 @@
 import { AxiosInstance, AxiosResponse, AxiosRequestConfig, CancelTokenSource } from "axios";
 import axios from "axios";
+import { CardActions } from "@material-ui/core";
 export default  class HttpResource { 
 
     private cancelList: CancelTokenSource | null = null;
@@ -20,6 +21,7 @@ export default  class HttpResource {
         if(options && options.queryParams){
             config.params = options.queryParams;
         }
+
         return this.http.get<T>(this.resource,config);
 
     }
@@ -39,5 +41,9 @@ export default  class HttpResource {
 
     delete<T = any>(id){
         return this.http.delete<T>(`${this.resource}/${id}`);
+    }
+
+    isCancelledRequest(error){
+        return axios.isCancel(error);
     }
 }
