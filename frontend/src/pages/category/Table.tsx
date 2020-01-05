@@ -135,7 +135,7 @@ export const Table: React.FC = ()=>{
                 
                 const {data}= await categoryHttp.list<ListResponse<Category>>({
                     queryParams:{
-                        search: searchState.search,
+                        search: cleanSearchText(searchState.search),
                         page: searchState.pagination.page,
                         per_page: searchState.pagination.per_page,
                         sort: searchState.order.sort,
@@ -166,12 +166,22 @@ export const Table: React.FC = ()=>{
                 setLoading(false);
             }
     }
+
+    function cleanSearchText(text){
+        let newText = text;
+        if(text && text.value !== undefined){
+            newText = text.value;
+        }
+
+        return newText;
+    }
     return (
        <DefaultTable 
             loading={loading} 
             title="Listagem de categorias" 
             columns={columns} 
             data={data} 
+            debouncedSearchTime={500}
             options={{
                 serverSide:true,
                 responsive: "scrollMaxHeight",
@@ -182,7 +192,13 @@ export const Table: React.FC = ()=>{
                 customToolbar: () =>(
                     <FilterResetButton handleClick={
                         ()=>{
-                            setSearchState(inititalState);
+                            setSearchState({
+                                ...inititalState,
+                                search: {
+                                    value: inititalState.search,
+                                    updated: true
+                                } as any
+                            });
                         }
                     }/>
                 ),

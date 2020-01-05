@@ -3,13 +3,14 @@ import * as React from 'react';
 import MUIDataTable, { MUIDataTableOptions, MUIDataTableProps, MUIDataTableColumn } from 'mui-datatables';
 import {merge,omit, cloneDeep} from 'lodash';
 import { useTheme, Theme, MuiThemeProvider, useMediaQuery } from '@material-ui/core';
+import DebouncedTableSearch from './DebouncedTableSearch';
 
 
 export interface TableColumn extends MUIDataTableColumn{
     width?: string
 }
 
-const defaultOptions: MUIDataTableOptions = {
+const makeDefaultOptions=(debouncedSearchTime):MUIDataTableOptions  => ({
     print:false,
     download:false,
     textLabels: {
@@ -44,12 +45,26 @@ const defaultOptions: MUIDataTableOptions = {
             delete:"Excluir",
             deleteAria:"Excluir registros selecionados"
         }
-    }
-}
+    },
+    customSearchRender: (   searchText: string,
+                            handleSearch: any,
+                            hideSearch: any,
+                            options: any) => 
+                            {
+                                return <DebouncedTableSearch
+                                            searchText={searchText}
+                                            onSearch={handleSearch}
+                                            onHide={hideSearch}
+                                            options={options}
+                                            debounceTime={debouncedSearchTime}
+                                />
+                            }
+});
 
 interface TableProps extends MUIDataTableProps {
     columns: TableColumn[],
-    loading?:boolean
+    loading?:boolean,
+    debouncedSearchTime?: number;
 }
 export const Table: React.FC<TableProps> = (props) => {
     
@@ -86,6 +101,7 @@ export const Table: React.FC<TableProps> = (props) => {
 
     const theme = cloneDeep<Theme>(useTheme());
     const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
+    const defaultOptions = makeDefaultOptions(props.debouncedSearchTime);
     const newProps = merge(
         {options: cloneDeep(defaultOptions)},
         props,
