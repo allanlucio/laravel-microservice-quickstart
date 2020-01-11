@@ -10,7 +10,7 @@ import { useSnackbar } from 'notistack';
 import { Link } from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
-import reducer, { INITIAL_STATE, Creators } from '../../store/search';
+import reducer, { INITIAL_STATE, Creators, Types } from '../../store/search';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -70,6 +70,7 @@ export const Table: React.FC = ()=>{
     const subscribed = useRef(true);
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [totalRecords, setTotalRecords] = useState<number>(0);
     const [searchState, dispatch] = useReducer(reducer, INITIAL_STATE);
     // const [searchState, setSearchState] = useState<SearchState>(inititalState);
     
@@ -115,13 +116,7 @@ export const Table: React.FC = ()=>{
                 });
                 if(subscribed.current){
                     setData(data.data);
-                    // setSearchState((prevState)=>({
-                    //     ...prevState,
-                    //     pagination: {
-                    //         ...prevState.pagination,
-                    //         total: data.meta.total
-                    //     }
-                    // }));
+                    setTotalRecords(data.meta.total);
                 }
                 
             }catch(error){
@@ -145,6 +140,7 @@ export const Table: React.FC = ()=>{
 
         return newText;
     }
+
     return (
        <DefaultTable 
             loading={loading} 
@@ -158,19 +154,18 @@ export const Table: React.FC = ()=>{
                 searchText: searchState.search as any,
                 page: searchState.pagination.page-1,
                 rowsPerPage: searchState.pagination.per_page,
-                count: searchState.pagination.total,
+                count: totalRecords,
                 customToolbar: () =>(
                     <FilterResetButton 
-                    handleClick={()=>{
-                        // dispatch({type:'default'})
-                    }
+                    handleClick={()=>dispatch(Creators.setReset())
+                    
                     }/>
                 ),
                 onSearchChange: (value) => dispatch(Creators.setSearch({search:value})),
-                onChangePage: (page) => Creators.setPage({page:page+1}),
-                onChangeRowsPerPage: (perPage) => Creators.setPerPage({per_page:perPage}),
-                onColumnSortChange: (changedColumn, direction) => Creators.setOrder(
-                    {sort: changedColumn, dir:direction.includes('desc')? "desc":'asc'}),
+                onChangePage: (page) => dispatch(Creators.setPage({page:page+1})),
+                onChangeRowsPerPage: (perPage) => dispatch(Creators.setPerPage({per_page:perPage})),
+                onColumnSortChange: (changedColumn, direction) => dispatch(Creators.setOrder(
+                    {sort: changedColumn, dir:direction.includes('desc')? "desc":'asc'})),
 
             }} 
         />
