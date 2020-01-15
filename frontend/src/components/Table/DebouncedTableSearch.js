@@ -67,6 +67,7 @@ class DebouncedTableSearch extends React.PureComponent {
   componentDidUpdate(prevProps, prevState, snapshot){
     const {searchText } = this.props;
     let value = this.state.text;
+    
     if(searchText && searchText.value !== undefined && prevProps.searchText != this.props.searchText){
         const value = searchText.value;
         this.setState({
