@@ -92,6 +92,7 @@ export const Table: React.FC = ()=>{
 
     useEffect(()=>{
         subscribed.current = true;
+        filterManager.pushHistory();
         getData();
         return () => {
             subscribed.current = false;
