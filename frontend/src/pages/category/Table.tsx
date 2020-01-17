@@ -67,7 +67,8 @@ const columnsDefinition: TableColumn[] = [
 
 const debouncedTime = 300;
 const debouncedSearchTime = 300;
-
+const rowsPerPage = 15;
+const rowsPerPageOptions = [15,25,50];
 export const Table: React.FC = ()=>{
  
     const snackbar = useSnackbar();
@@ -86,9 +87,11 @@ export const Table: React.FC = ()=>{
             
         columns:columnsDefinition,
         debounceTime: debouncedTime,
-        rownPerPage:10,
-        RowsPerPageOptions: [10,25,50]
+        rowsPerPage:rowsPerPage,
+        rowsPerPageOptions 
     });
+
+    
 
     useEffect(()=>{
         subscribed.current = true;
@@ -145,11 +148,13 @@ export const Table: React.FC = ()=>{
             data={data} 
             debouncedSearchTime={debouncedSearchTime}
             options={{
+                
                 serverSide:true,
                 responsive: "scrollMaxHeight",
                 searchText: filterState.search as any,
                 page: filterState.pagination.page-1,
                 rowsPerPage: filterState.pagination.per_page,
+                rowsPerPageOptions,
                 count: totalRecords,
                 customToolbar: () =>(
                     <FilterResetButton 
