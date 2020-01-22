@@ -61,14 +61,17 @@ const makeDefaultOptions=(debouncedSearchTime):MUIDataTableOptions  => ({
                             }
 });
 
-interface TableProps extends MUIDataTableProps {
+export interface MuiDatatableRefComponent{
+    changePage: (page:number) => void
+    changeRowsPerPage:(rowsPerPage: number) => void
+}
+interface TableProps extends MUIDataTableProps, React.RefAttributes<MuiDatatableRefComponent> {
     columns: TableColumn[],
     loading?:boolean,
     debouncedSearchTime?: number;
 }
-export const Table: React.FC<TableProps> = (props) => {
+export const Table = React.forwardRef<MuiDatatableRefComponent,TableProps>((props,ref) => {
     
-
     function extractMuiDataTableColumns(columns: TableColumn[]):MUIDataTableColumn[]{
         setColumnsWidth(columns);
         return columns.map(column => omit(column,'width'));
@@ -96,7 +99,10 @@ export const Table: React.FC<TableProps> = (props) => {
     }
 
     function getOriginalMuiDataTableProps(){
-        return omit(newProps, 'loading');
+        return {
+            ...omit(newProps, 'loading','forwardRef'),
+            ref
+        };
     }
 
     const theme = cloneDeep<Theme>(useTheme());
@@ -116,10 +122,10 @@ export const Table: React.FC<TableProps> = (props) => {
 
     return (
         <MuiThemeProvider theme={theme}>
-            <MUIDataTable {...originalProps}/>    
+            <MUIDataTable {...originalProps} />    
         </MuiThemeProvider>
         
     );
-};
+});
 
 export default Table;

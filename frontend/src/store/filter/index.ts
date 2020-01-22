@@ -1,4 +1,4 @@
-import {SetSearchAction, SetPageAction, SetPerPageAction, SetOrderAction, State, Actions} from "./types";
+import {SetSearchAction, SetPageAction, SetPerPageAction, SetOrderAction, State, Actions, SetResetAction} from "./types";
 import {createActions, createReducer} from "reduxsauce";
 
 export const {Types, Creators} = createActions<
@@ -13,14 +13,14 @@ export const {Types, Creators} = createActions<
         setPage(payload: SetPageAction['payload']): SetPageAction
         setPerPage(payload: SetPerPageAction['payload']): SetPerPageAction
         setOrder(payload: SetOrderAction['payload']): SetOrderAction
-        setReset()
+        setReset(payload: SetResetAction['payload']): SetResetAction
     }>
 ({
     setSearch: ['payload'],
     setPage: ['payload'],
     setPerPage: ['payload'],
     setOrder: ['payload'],
-    setReset:[]
+    setReset:['payload']
 
 });
 
@@ -28,7 +28,7 @@ export const INITIAL_STATE: State = {
     search: null,
     pagination:{
         page:1,
-        per_page: 10
+        per_page: 15
     },
     order:{
         sort:null,
@@ -90,11 +90,10 @@ function setOrder(state = INITIAL_STATE, action: SetOrderAction): State{
         }
     }
 }
-function setReset(state = INITIAL_STATE, action){
-    return {
-        ...INITIAL_STATE,
-        search:{value:null, update:true}
-    }
+function setReset(state = INITIAL_STATE, action: SetResetAction): State{
+    
+    return action.payload.state;
+    
 }
 
 

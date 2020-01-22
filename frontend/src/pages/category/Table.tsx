@@ -1,16 +1,15 @@
 import * as React from 'react';
-import {useState,useEffect, useRef, useReducer} from "react";
+import {useState,useEffect, useRef} from "react";
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import categoryHttp from '../../util/http/category-http';
 import { Category, ListResponse } from '../../util/models';
-import DefaultTable, {TableColumn} from '../../components/Table';
+import DefaultTable, {TableColumn, MuiDatatableRefComponent} from '../../components/Table';
 import { useSnackbar } from 'notistack';
 import { Link } from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
-import reducer, { INITIAL_STATE, Creators, Types } from '../../store/filter';
 import useFilter from '../../hooks/useFilter';
 
 const columnsDefinition: TableColumn[] = [
@@ -70,9 +69,10 @@ const debouncedSearchTime = 300;
 const rowsPerPage = 15;
 const rowsPerPageOptions = [15,25,50];
 export const Table: React.FC = ()=>{
- 
+    
     const snackbar = useSnackbar();
     const subscribed = useRef(true);
+    const tableRef = useRef() as React.MutableRefObject<MuiDatatableRefComponent>;
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const {
@@ -88,7 +88,8 @@ export const Table: React.FC = ()=>{
         columns:columnsDefinition,
         debounceTime: debouncedTime,
         rowsPerPage:rowsPerPage,
-        rowsPerPageOptions 
+        rowsPerPageOptions,
+        tableRef 
     });
 
     
@@ -141,12 +142,14 @@ export const Table: React.FC = ()=>{
     
 
     return (
-       <DefaultTable 
+       <DefaultTable
+            
             loading={loading} 
             title="Listagem de categorias" 
             columns={filterManager.columns} 
             data={data} 
             debouncedSearchTime={debouncedSearchTime}
+            ref={tableRef} 
             options={{
                 
                 serverSide:true,
@@ -158,8 +161,8 @@ export const Table: React.FC = ()=>{
                 count: totalRecords,
                 customToolbar: () =>(
                     <FilterResetButton 
-                    handleClick={()=>dispatch(Creators.setReset())
-                    
+                    handleClick={
+                        ()=>filterManager.resetFilter()
                     }/>
                 ),
                 onSearchChange: (value) => filterManager.changeSearch(value),

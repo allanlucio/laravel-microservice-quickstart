@@ -37,5 +37,11 @@ export interface SetOrderAction extends AnyAction{
         dir: string
     }
 }
+export interface SetResetAction extends AnyAction{
+    payload: {
+        state: State,
+        
+    }
+}
 
-export type Actions = SetSearchAction | SetPageAction | SetPerPageAction | SetOrderAction;
+export type Actions = SetSearchAction | SetPageAction | SetPerPageAction | SetOrderAction | SetResetAction;
