@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Genre;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -65,12 +66,12 @@ class GenreUnitTest extends TestCase
 
 
         $traits=[
-            SoftDeletes::class, Uuid::class
+            SoftDeletes::class, Filterable::class,Uuid::class,
 
         ];
         $genreTrais=array_values(class_uses(Genre::class));
 
-        $this->assertEquals($traits,$genreTrais);
+        $this->assertEqualsCanonicalizing($traits,$genreTrais);
 
     }
 }
