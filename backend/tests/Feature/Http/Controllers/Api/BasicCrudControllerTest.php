@@ -43,8 +43,8 @@ class BasicCrudControllerTest extends TestCase
             "description" => "test_description"
         ]);
 
-
-        $resource_response = $this->controller->index();
+        $request = new Request();
+        $resource_response = $this->controller->index($request);
         $resource_data_response = $resource_response->response()->getData(true);
         $resource = CategoryResourceStub::collection(CategoryStub::paginate(15));
         $data = $resource->response()->getData(true);

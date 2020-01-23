@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\CastMember;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -63,12 +64,12 @@ class CastMemberUnitTest extends TestCase
 
 
         $traits=[
-            SoftDeletes::class, Uuid::class
+            SoftDeletes::class, Uuid::class, Filterable::class
 
         ];
         $cast_memberTrais=array_values(class_uses(CastMember::class));
 
-        $this->assertEquals($traits,$cast_memberTrais);
+        $this->assertEqualsCanonicalizing($traits,$cast_memberTrais);
 
     }
 }

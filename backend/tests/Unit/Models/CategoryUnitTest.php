@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Category;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
@@ -63,12 +64,12 @@ class CategoryUnitTest extends TestCase
 
 
         $traits=[
-            SoftDeletes::class, Uuid::class
+            SoftDeletes::class, Uuid::class, Filterable::class
 
         ];
         $categoryTrais=array_values(class_uses(Category::class));
 
-        $this->assertEquals($traits,$categoryTrais);
+        $this->assertEqualsCanonicalizing($traits,$categoryTrais);
 
     }
 }
