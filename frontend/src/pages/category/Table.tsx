@@ -99,7 +99,9 @@ export const Table: React.FC = ()=>{
         filterManager.pushHistory();
         getData();
         return () => {
+            
             subscribed.current = false;
+
         }
     },[
         filterManager.cleanSearchText(debouncedFilterState.search), 
