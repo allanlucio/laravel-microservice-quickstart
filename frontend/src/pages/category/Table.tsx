@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import useFilter from '../../hooks/useFilter';
+import { BadgeYes, BadgeNo } from '../../components/Badge';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -33,7 +34,7 @@ const columnsDefinition: TableColumn[] = [
         options:{
             customBodyRender(value, tableMeta,updateValue){
                 
-                return value ? <Chip label="Sim" color="primary"></Chip>: <Chip color="secondary" label="Não"></Chip>;
+                return value ? <BadgeYes label={"Sim"}/>: <BadgeNo label={"Não"}/>;
             }
         }
     },
@@ -53,13 +54,14 @@ const columnsDefinition: TableColumn[] = [
         label:'Ações',
         width:"13%",
         options:{
+            sort: false,
             customBodyRender(value, tableMeta,updateValue){
                 
                 const id = tableMeta.rowData[0];
                 return <Link to={`/categories/${id}/edit`}>  <EditIcon color={'primary'}></EditIcon></Link>
             }
         }
-          
+
         
     },
 ];

@@ -64,13 +64,13 @@ const columnsDefinition: TableColumn[] = [
         label:'Ações',
         width:"13%",
         options:{
+            sort: false,
             customBodyRender(value, tableMeta,updateValue){
                 
                 const id = tableMeta.rowData[0];
                 return <Link to={`/cast-members/${id}/edit`}>  <EditIcon color={'primary'}></EditIcon></Link>
             }
         }
-          
         
     }
     
@@ -153,36 +153,35 @@ export const Table: React.FC = ()=>{
 
     return (
         <DefaultTable
-             
-             loading={loading} 
-             title="Listagem dos membnos de elenco" 
-             columns={filterManager.columns} 
-             data={data} 
-             debouncedSearchTime={debouncedSearchTime}
-             ref={tableRef} 
-             options={{
-                 
-                 serverSide:true,
-                 responsive: "scrollMaxHeight",
-                 searchText: filterState.search as any,
-                 page: filterState.pagination.page-1,
-                 rowsPerPage: filterState.pagination.per_page,
-                 rowsPerPageOptions,
-                 count: totalRecords,
-                 customToolbar: () =>(
-                     <FilterResetButton 
-                     handleClick={
-                         ()=>filterManager.resetFilter()
-                     }/>
-                 ),
-                 onSearchChange: (value) => filterManager.changeSearch(value),
-                 onChangePage: (page) => filterManager.changePage(page),
-                 onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
-                 onColumnSortChange: (changedColumn, direction) => filterManager.changeColumnSort(changedColumn,direction)
- 
-             }} 
-         />
-     );
+            loading={loading}
+            title="Listagem dos membros de elenco"
+            columns={filterManager.columns}
+            data={data}
+            debouncedSearchTime={debouncedSearchTime}
+            ref={tableRef}
+            options={{
+
+                serverSide: true,
+                responsive: "scrollMaxHeight",
+                searchText: filterState.search as any,
+                page: filterState.pagination.page - 1,
+                rowsPerPage: filterState.pagination.per_page,
+                rowsPerPageOptions,
+                count: totalRecords,
+                customToolbar: () => (
+                    <FilterResetButton
+                        handleClick={
+                            () => filterManager.resetFilter()
+                        } />
+                ),
+                onSearchChange: (value) => filterManager.changeSearch(value),
+                onChangePage: (page) => filterManager.changePage(page),
+                onChangeRowsPerPage: (perPage) => filterManager.changeRowsPerPage(perPage),
+                onColumnSortChange: (changedColumn, direction) => filterManager.changeColumnSort(changedColumn, direction)
+
+            }}
+        />
+    );
 }
 
 export default Table;
