@@ -7,21 +7,19 @@ import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from '../../util/http/cast-member-http';
 import { BadgeYes, BadgeNo } from '../../components/Badge';
-import { CastMember, ListResponse } from '../../util/models';
+import { CastMember, ListResponse, CastMemberTypeMap } from '../../util/models';
 import DefaultTable, { TableColumn, MuiDatatableRefComponent } from '../../components/Table';
 import { Link } from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import { useSnackbar } from 'notistack';
 import useFilter from '../../hooks/useFilter';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
+import * as yup from '../../util/vendor/yup';
 
 
 
-const castMemberTypeMap = {
-        0:"Ator",
-        1:"Diretor"
-    }
 
+const castMemberNames = Object.values(CastMemberTypeMap);
 const columnsDefinition: TableColumn[] = [
     {
         name:'id',
@@ -42,7 +40,7 @@ const columnsDefinition: TableColumn[] = [
         width:"10%",
         options:{
             customBodyRender(value, tableMeta,updateValue){
-                let type = castMemberTypeMap[value];
+                let type = CastMemberTypeMap[value];
                 
                 return value ? <BadgeYes label={type}/>: <BadgeNo label={type}/>;
             }
@@ -102,7 +100,32 @@ export const Table: React.FC = ()=>{
         debounceTime: debouncedTime,
         rowsPerPage:rowsPerPage,
         rowsPerPageOptions,
-        tableRef 
+        tableRef,
+        extraFilter:{
+            createValidationSchema:()=>{
+                return yup.object().shape({
+                    type:yup.string()
+                        .nullable()
+                        .transform(value => {
+                            return !value || !castMemberNames.includes(value)?undefined: value;
+                        })
+                        .default(null)
+                });
+            },
+            formatSearchParams: (debouncedState) => {
+                return debouncedState.extraFilter?{
+                    ...(
+                        debouncedState.extraFilter.type &&
+                        {type: debouncedState.extraFilter.type}
+                    )
+                }: undefined
+            },
+            getStateFromUrl: (queryParams) => {
+                return {
+                    type: queryParams.get('type')
+                }
+            }
+        } 
     });
     useEffect(()=>{
         subscribed.current = true;

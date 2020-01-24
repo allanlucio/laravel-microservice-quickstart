@@ -14,6 +14,7 @@ import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import EditIcon from "@material-ui/icons/Edit";
 import { BadgeYes, BadgeNo } from '../../components/Badge';
 import { useSnackbar } from 'notistack';
+import * as yup from '../../util/vendor/yup';
 
 
 
@@ -114,7 +115,32 @@ export const Table: React.FC = ()=>{
         debounceTime: debouncedTime,
         rowsPerPage:rowsPerPage,
         rowsPerPageOptions,
-        tableRef 
+        tableRef,
+        extraFilter:{
+            createValidationSchema:()=>{
+                return yup.object().shape({
+                    categories:yup.mixed()
+                        .nullable()
+                        .transform(value => {
+                            return !value || value === ''? undefined: value.split(',')
+                        })
+                        .default(null)
+                });
+            },
+            formatSearchParams: (debouncedState) => {
+                return debouncedState.extraFilter?{
+                    ...(
+                        debouncedState.extraFilter.categories &&
+                        {categories: debouncedState.extraFilter.categories.join(',')}
+                    )
+                }: undefined
+            },
+            getStateFromUrl: (queryParams) => {
+                return {
+                    type: queryParams.get('categories')
+                }
+            }
+        }  
     });
     
     

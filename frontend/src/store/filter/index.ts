@@ -1,4 +1,4 @@
-import {SetSearchAction, SetPageAction, SetPerPageAction, SetOrderAction, State, Actions, SetResetAction} from "./types";
+import {SetSearchAction, SetPageAction, SetPerPageAction, SetOrderAction, State, Actions, SetResetAction,UpdateExtraFilterAction} from "./types";
 import {createActions, createReducer} from "reduxsauce";
 
 export const {Types, Creators} = createActions<
@@ -6,22 +6,25 @@ export const {Types, Creators} = createActions<
         SET_SEARCH:string,
         SET_PAGE: string,
         SET_PER_PAGE: string,
-        SET_ORDER: string
-        SET_RESET: string
+        SET_ORDER: string,
+        SET_RESET: string,
+        UPDATE_EXTRA_FILTER: string
+
     },{
         setSearch(payload: SetSearchAction['payload']): SetSearchAction
         setPage(payload: SetPageAction['payload']): SetPageAction
         setPerPage(payload: SetPerPageAction['payload']): SetPerPageAction
         setOrder(payload: SetOrderAction['payload']): SetOrderAction
         setReset(payload: SetResetAction['payload']): SetResetAction
+        updateExtraFilter(payload: UpdateExtraFilterAction['payload']): UpdateExtraFilterAction
     }>
 ({
     setSearch: ['payload'],
     setPage: ['payload'],
     setPerPage: ['payload'],
     setOrder: ['payload'],
-    setReset:['payload']
-
+    setReset:['payload'],
+    updateExtraFilter:['payload']
 });
 
 export const INITIAL_STATE: State = {
@@ -41,7 +44,8 @@ const reducer = createReducer<State, Actions>(INITIAL_STATE, {
     [Types.SET_PAGE]: setPage as any,
     [Types.SET_PER_PAGE]: setPerPage as any,
     [Types.SET_ORDER]: setOrder as any,
-    [Types.SET_RESET]: setReset as any
+    [Types.SET_RESET]: setReset as any,
+    [Types.UPDATE_EXTRA_FILTER]: updateExtraFilter as any,
 });
 export default reducer;
 
@@ -95,6 +99,19 @@ function setReset(state = INITIAL_STATE, action: SetResetAction): State{
     return action.payload.state;
     
 }
+function updateExtraFilter(state = INITIAL_STATE, action: UpdateExtraFilterAction): State{
+    
+    return {
+        ...state,
+        extraFilter: {
+            ...state.extraFilter,
+            ...action.payload
+        }
+    }
+    
+}
+
+
 
 
  
