@@ -15,7 +15,7 @@ import { useSnackbar } from 'notistack';
 import useFilter from '../../hooks/useFilter';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import * as yup from '../../util/vendor/yup';
-
+import {invert} from 'lodash';
 
 
 
@@ -26,19 +26,27 @@ const columnsDefinition: TableColumn[] = [
         label:'ID',
         width:"30%",
         options:{
+            filter:false,
             sort: false
         }
     },
     {
         name:'name',
         label:'Nome',
-        width:"43%"        
+        width:"43%",
+        options:{
+            filter:false,
+            
+        }        
     },
     {
         name:'type',
         label:'Tipo',
         width:"10%",
         options:{
+            filterOptions:{
+                names: castMemberNames
+            },
             customBodyRender(value, tableMeta,updateValue){
                 let type = CastMemberTypeMap[value];
                 
@@ -51,6 +59,7 @@ const columnsDefinition: TableColumn[] = [
         label:'Criado em',
         width:"10%",
         options:{
+            filter:false,
             customBodyRender(value, tableMeta,updateValue){
                 
                 return <span>{format(parseISO(value),"dd/MM/yyyy")}</span>
@@ -63,6 +72,7 @@ const columnsDefinition: TableColumn[] = [
         width:"13%",
         options:{
             sort: false,
+            filter:false,
             customBodyRender(value, tableMeta,updateValue){
                 
                 const id = tableMeta.rowData[0];
@@ -127,6 +137,17 @@ export const Table: React.FC = ()=>{
             }
         } 
     });
+    const indexColumnType = columnsDefinition.findIndex(c=> c.name ==='type');
+    const columnType = columnsDefinition[indexColumnType];
+    const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type as never;
+    (columnType.options as any).filterList = typeFilterValue
+        ? [typeFilterValue]
+        :[];
+    const serverSideFilterList = columnsDefinition.map(column => []);
+    if(typeFilterValue){
+        serverSideFilterList[indexColumnType] = [typeFilterValue];
+    }
+
     useEffect(()=>{
         subscribed.current = true;
         filterManager.pushHistory();
@@ -140,18 +161,25 @@ export const Table: React.FC = ()=>{
         filterManager.cleanSearchText(debouncedFilterState.search), 
         debouncedFilterState.pagination.page, 
         debouncedFilterState.pagination.per_page, 
-        debouncedFilterState.order]);
+        debouncedFilterState.order,
+        JSON.stringify(debouncedFilterState.extraFilter)
+    ]);
     async function getData(){
         setLoading(true);
             try{
                 
                 const {data}= await castMemberHttp.list<ListResponse<CastMember>>({
                     queryParams:{
-                        search: filterManager.cleanSearchText(filterState.search),
-                        page: filterState.pagination.page,
-                        per_page: filterState.pagination.per_page,
-                        sort: filterState.order.sort,
-                        dir: filterState.order.dir,
+                        search: filterManager.cleanSearchText(debouncedFilterState.search),
+                        page: debouncedFilterState.pagination.page,
+                        per_page: debouncedFilterState.pagination.per_page,
+                        sort: debouncedFilterState.order.sort,
+                        dir: debouncedFilterState.order.dir,
+                        ...(
+                            debouncedFilterState.extraFilter &&
+                            debouncedFilterState.extraFilter.type &&
+                            {type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type]}
+                        )
 
                     }
                 });
@@ -183,7 +211,7 @@ export const Table: React.FC = ()=>{
             debouncedSearchTime={debouncedSearchTime}
             ref={tableRef}
             options={{
-
+                serverSideFilterList,
                 serverSide: true,
                 responsive: "scrollMaxHeight",
                 searchText: filterState.search as any,
@@ -191,6 +219,12 @@ export const Table: React.FC = ()=>{
                 rowsPerPage: filterState.pagination.per_page,
                 rowsPerPageOptions,
                 count: totalRecords,
+                onFilterChange: (column, filterList, type)=>{
+                    const columnIndex = columnsDefinition.findIndex(c => c.name ===column);
+                    filterManager.changeExtraFilter({
+                        [column]: filterList[columnIndex].length ? filterList[columnIndex][0]: null
+                    });
+                },
                 customToolbar: () => (
                     <FilterResetButton
                         handleClick={

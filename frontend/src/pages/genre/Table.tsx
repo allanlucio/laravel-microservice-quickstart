@@ -15,6 +15,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import { BadgeYes, BadgeNo } from '../../components/Badge';
 import { useSnackbar } from 'notistack';
 import * as yup from '../../util/vendor/yup';
+import categoryHttp from '../../util/http/category-http';
 
 
 
@@ -25,13 +26,18 @@ const columnsDefinition: TableColumn[] = [
         label:'ID',
         width:"30%",
         options:{
+            filter:false,
             sort: false
         }
     },
     {
         name:'name',
         label:'Nome',
-        width:"30%"
+        width:"30%",
+        options:{
+            filter:false,
+            
+        }  
 
     },
     {
@@ -40,6 +46,10 @@ const columnsDefinition: TableColumn[] = [
         width:"35%",
 
         options:{
+            filterType:'multiselect',
+            filterOptions:{
+                names:[]
+            },
             sort: false,
             customBodyRender(value, tableMeta,updateValue){
                 
@@ -54,6 +64,10 @@ const columnsDefinition: TableColumn[] = [
         width:"10%",
 
         options:{
+            
+            filter:false,
+                
+            
             customBodyRender(value, tableMeta,updateValue){
                 
                 return value ? <BadgeYes label={"Sim"}/>: <BadgeNo label={"Não"}/>;
@@ -66,6 +80,7 @@ const columnsDefinition: TableColumn[] = [
         width:"10%",
 
         options:{
+            filter:false,
             customBodyRender(value, tableMeta,updateValue){
                 
                 return <span>{format(parseISO(value),"dd/MM/yyyy")}</span>
@@ -77,6 +92,7 @@ const columnsDefinition: TableColumn[] = [
         label:'Ações',
         width:"13%",
         options:{
+            filter:false,
             sort: false,
             customBodyRender(value, tableMeta,updateValue){
                 
@@ -100,6 +116,7 @@ export const Table: React.FC = ()=>{
     const subscribed = useRef(true);
     const tableRef = useRef() as React.MutableRefObject<MuiDatatableRefComponent>;
     const [data, setData] = useState<Genre[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const {
         filterState,
@@ -143,6 +160,43 @@ export const Table: React.FC = ()=>{
         }  
     });
     
+    const indexColumnCategories = columnsDefinition.findIndex(c=> c.name ==='categories');
+    const columnCategories = columnsDefinition[indexColumnCategories];
+    const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
+    (columnCategories.options as any).filterList = categoriesFilterValue
+        ? categoriesFilterValue
+        :[];
+    const serverSideFilterList = columnsDefinition.map(column => []);
+    if(categoriesFilterValue){
+        serverSideFilterList[indexColumnCategories] = categoriesFilterValue;
+    }
+    
+    useEffect(() => {
+        (async () => {
+            try{
+                console.log("useEffect");
+
+                const {data}= await categoryHttp.list<ListResponse<Category>>({queryParams:{all:''}});
+                if(subscribed.current){
+                    setCategories(data.data);
+                    (columnCategories.options as any).filterOptions.names = data.data.map(category=> category.name);
+                    
+                }
+                
+            }catch(error){
+                
+                if(genreHttp.isCancelledRequest(error)){
+                    return ;
+                }
+                snackbar.enqueueSnackbar(
+                    "Não foi possivel carregar as informações",
+                    {variant:"error"});
+            }
+        })();
+        return ()=>{
+            subscribed.current = false;
+        }
+    }, [])
     
     useEffect(()=>{
         subscribed.current = true;
@@ -157,7 +211,10 @@ export const Table: React.FC = ()=>{
         filterManager.cleanSearchText(debouncedFilterState.search), 
         debouncedFilterState.pagination.page, 
         debouncedFilterState.pagination.per_page, 
-        debouncedFilterState.order]);
+        debouncedFilterState.order,
+        debouncedFilterState.extraFilter
+    
+    ]);
 
     async function getData(){
         setLoading(true);
@@ -170,7 +227,11 @@ export const Table: React.FC = ()=>{
                         per_page: filterState.pagination.per_page,
                         sort: filterState.order.sort,
                         dir: filterState.order.dir,
-
+                        ...(
+                            debouncedFilterState.extraFilter &&
+                            debouncedFilterState.extraFilter.categories &&
+                            {categories: debouncedFilterState.extraFilter.categories.join(",")}
+                        )
                     }
                 });
                 if(subscribed.current){
@@ -201,7 +262,7 @@ export const Table: React.FC = ()=>{
              debouncedSearchTime={debouncedSearchTime}
              ref={tableRef} 
              options={{
-                 
+                 serverSideFilterList,
                  serverSide:true,
                  responsive: "scrollMaxHeight",
                  searchText: filterState.search as any,
@@ -209,6 +270,12 @@ export const Table: React.FC = ()=>{
                  rowsPerPage: filterState.pagination.per_page,
                  rowsPerPageOptions,
                  count: totalRecords,
+                 onFilterChange: (column,filterList,type)=>{
+                    const columnIndex = columnsDefinition.findIndex(c=>c.name===column);
+                    filterManager.changeExtraFilter({
+                        [column]: filterList[columnIndex].length? filterList[columnIndex]: null
+                    });
+                 },
                  customToolbar: () =>(
                      <FilterResetButton 
                      handleClick={
