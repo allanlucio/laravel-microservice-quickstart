@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
 use App\Http\Resources\VideoResource;
+use App\Models\CastMember;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
@@ -56,7 +57,8 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
             'rating'=>"",
             'duration'=>"",
             'categories_id'=>"",
-            'genres_id'=>""
+            'genres_id'=>"",
+            'cast_members_id'=>"",
         ];
         $this->assertInvalidationInStoreAction($data,"required");
         $this->assertInvalidationInUpdateAction($data,"required");
@@ -105,6 +107,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
         $data = [
             "genres_id"=>"a",
             "categories_id"=>"a",
+            "cast_members_id"=>"a",
 
         ];
         $this->assertInvalidationInStoreAction($data,"array");
@@ -150,13 +153,35 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
         $this->assertInvalidationInStoreAction($data,"exists");
         $this->assertInvalidationInUpdateAction($data,"exists");
     }
+    public function testInvalidationCastMemberId(){
+        $data = [
+            "cast_members_id"=>["a"],
+
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+
+        $castMembers = factory(CastMember::class)->create();
+        $castMembers->delete();
+        $data = [
+            "cast_members_id"=>[$castMembers->id],
+
+
+        ];
+        $this->assertInvalidationInStoreAction($data,"exists");
+        $this->assertInvalidationInUpdateAction($data,"exists");
+    }
 
 
     public function testSaveWithoutFiles(){
-        $testData = Arr::except($this->sendData,["categories_id","genres_id"]);
+        $testData = Arr::except($this->sendData,[
+            "categories_id","genres_id",'cast_members_id'
+        ]);
 
         $category_id = $this->sendData["categories_id"][0];
         $genre_id = $this->sendData["genres_id"][0];
+        $cast_member_id = $this->sendData["cast_members_id"][0];
         $data=[
             [
                 "send_data"=>$this->sendData,
@@ -174,6 +199,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
                 $this->assertModelResource($response);
                 $this->assertManyToManyRelashionships($response->json("data.id"),"genres",[$genre_id]);
                 $this->assertManyToManyRelashionships($response->json("data.id"),"categories",[$category_id]);
+                $this->assertManyToManyRelashionships($response->json("data.id"),"castMembers",[$cast_member_id]);
 
 
 
@@ -181,7 +207,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTest
                 $this->assertModelResource($response);
                 $this->assertManyToManyRelashionships($response->json("data.id"),"genres",[$genre_id]);
                 $this->assertManyToManyRelashionships($response->json("data.id"),"categories",[$category_id]);
-
+                $this->assertManyToManyRelashionships($response->json("data.id"),"castMembers",[$cast_member_id]);
             }
         }
 

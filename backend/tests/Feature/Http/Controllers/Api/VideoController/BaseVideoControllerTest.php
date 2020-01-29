@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Http\Controllers\Api\VideoController;
 
-
+use App\Models\CastMember;
 use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
@@ -37,6 +37,7 @@ class BaseVideoControllerTest extends TestCase
         "trailer_file_url",
         "categories"=>["*"=>["id",'name',"description","is_active"]],
         "genres"=>["*"=>["id",'name',"is_active"]],
+        "cast_members"=>["*"=>["id",'name',"type"]],
     ];
     protected function setUp(): void
     {
@@ -46,8 +47,9 @@ class BaseVideoControllerTest extends TestCase
             ]);
             $genre = factory(Genre::class)->create();
             $category = factory(Category::class)->create();
+            $castMember = factory(CastMember::class)->create();
             $genre->categories()->sync($category->id);
-            $category_genres_array = ["categories_id"=>[$category->id],"genres_id"=>[$genre->id]];
+            $category_genres_array = ["categories_id"=>[$category->id],"genres_id"=>[$genre->id],'cast_members_id'=>[$castMember->id]];
 
             $this->sendData = [
                 "title" => "title",
