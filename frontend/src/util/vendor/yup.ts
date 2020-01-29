@@ -2,7 +2,8 @@ import {LocaleObject, setLocale} from 'yup';
 
 const ptBR: LocaleObject = {
     mixed: {
-        required: "${path} é obrigatório"
+        required: "${path} é obrigatório",
+        notType: "${path} é inválido",
     },
     string: {
         max: "${path} deve ter no máximo ${max} caracteres"

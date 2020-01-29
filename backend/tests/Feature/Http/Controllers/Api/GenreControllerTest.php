@@ -152,7 +152,7 @@ class GenreControllerTest extends TestCase
                     "categories_id"=>[$categoriesId[0]]
                 ];
                 $response = $this->json("POST", $this->routeStore(),$sendData);
-                $this->assertModelResource($response);
+                $this->assertModelResource($response,null,null,['categories']);
                 $this->assertDatabaseHas("category_genre",[
                     "category_id"=>$categoriesId[0],
                     "genre_id"=>$response->json("data.id")]

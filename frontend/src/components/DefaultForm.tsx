@@ -21,7 +21,7 @@ export const DefaultForm:React.FC<DefaultFormProps> = (props) => {
     return (
         <form {... other}>
             <Grid container {... GridContainerProps}> 
-                <Grid className={classes.gridItem} {... GridItemProps} item xs={12} md={6}>
+                <Grid item xs={12} md={6} className={classes.gridItem} {... GridItemProps} >
                     {props.children}
                 </Grid>
             </Grid>

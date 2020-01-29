@@ -16,6 +16,7 @@ trait TestResources{
             $data = $model_class::find($id);
         }
 
+
         if($fields == null){
             $fields = $this->serializedFields;
         }

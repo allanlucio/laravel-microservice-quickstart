@@ -3,6 +3,7 @@ import Dashboard from "../pages/Dashboard";
 import categoryRoutes from "./resources/category";
 import castMemberRoutes from "./resources/castMember";
 import genreRoutes from "./resources/genre";
+import videoRoutes from "./resources/video";
 
 export interface MyRouteProps extends RouteProps{
     label : string;
@@ -19,7 +20,8 @@ var routes: MyRouteProps[] = [
     },
     ...categoryRoutes,
     ...castMemberRoutes,
-    ...genreRoutes
+    ...genreRoutes,
+    ...videoRoutes,
 
 ];
 
