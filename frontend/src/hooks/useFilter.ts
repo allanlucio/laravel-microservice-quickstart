@@ -17,6 +17,13 @@ interface FilterManagerOptions{
     debounceTime: number;
     history: History;
     tableRef: React.MutableRefObject<MuiDatatableRefComponent>;
+    extraFilter?: ExtraFilter;
+}
+
+interface ExtraFilter{
+    getStateFromUrl: (queryParams: URLSearchParams) => any
+    formatSearchParams: (debouncedState: FilterState) => any
+    createValidationSchema:() => any
 }
 
 interface useFilterOptions extends Omit<FilterManagerOptions, 'history'>{
@@ -53,6 +60,7 @@ export class FilterManager {
     history: History;
     tableRef: React.MutableRefObject<MuiDatatableRefComponent>;
     debouncedState: FilterState = null as any;
+    extraFilter?: ExtraFilter;
 
     
     
@@ -62,6 +70,7 @@ export class FilterManager {
         this.rowsPerPageOptions = options.rowsPerPageOptions;
         this.history = options.history;
         this.tableRef = options.tableRef;
+        this.extraFilter = options.extraFilter;
         this.createValidationSchema();
         
         
@@ -83,6 +92,14 @@ export class FilterManager {
 
         this.resetTablePagination();
     }
+    changeExtraFilter(data){
+        console.log(data);
+        this.dispatch(Creators.updateExtraFilter(data));
+
+        
+    }
+
+    
     resetFilter(){
         const INITIAL_STATE = {
             ...this.schema.cast({}),
@@ -163,7 +180,10 @@ export class FilterManager {
             ...(this.debouncedState.order.sort && {
                 sort: this.debouncedState.order.sort,
                 dir: this.debouncedState.order.dir,
-            })
+            }),
+            ...(
+                this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
+            )
         }
     }
     getStateFromUrl(){
@@ -178,6 +198,11 @@ export class FilterManager {
                 sort: queryParams.get('sort'),
                 dir: queryParams.get('dir')
             },
+            ...(
+                this.extraFilter && {
+                    extraFilter:this.extraFilter.getStateFromUrl(queryParams)
+                }
+            )
         });
         console.log(state);
         return state;
@@ -213,7 +238,12 @@ export class FilterManager {
                     .nullable()
                     .transform(value => !value || !['asc','desc'].includes(value.toLowerCase()? undefined : value))
                     .default(null)
-            })
+            }),
+            ...(
+                this.extraFilter && {extraFilter: this.extraFilter.createValidationSchema()}
+            )
+                
+            
 
         })
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\GenreResource;
 use App\Models\Genre;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -71,4 +72,7 @@ class GenreController extends BasicCrudController
     protected function resource(){
         return GenreResource::class;
     }
+
+
+
 }

@@ -14,6 +14,7 @@ class CastMember extends Model
     use Uuid;
     const TYPE_ACTOR = 0;
     const TYPE_DIRECTOR = 1;
+    public static $types = [CastMember::TYPE_ACTOR, CastMember::TYPE_DIRECTOR];
     protected $fillable = ["name","type"];
     protected $dates = ['deleted_at'];
     public $incrementing = false;
