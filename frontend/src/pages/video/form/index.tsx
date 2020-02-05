@@ -17,6 +17,10 @@ import { RatingField } from './RatingField';
 import InputFile from '../../../components/inputFile';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { UploadField } from './UploadField';
+import AsyncAutoComplete from '../../../components/AsyncAutoComplete';
+import genreHttp from '../../../util/http/genre-http';
+import { GridSelected } from '../../../components/GridSelected';
+import GridSelectedItem from '../../../components/GridSelectedItem';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -191,6 +195,11 @@ export const Form: React.FC = ()=>{
         
         setValue(event.target.name, event.target.value, false);
     };
+
+    const fetchOptions = (searchText) => genreHttp.list(
+        {queryParams:
+            {search: searchText, all:""}
+        }).then(({data})=>data.data);
     return (
         <DefaultForm 
             GridItemProps={{xs:12, md:12}}
@@ -257,8 +266,23 @@ export const Form: React.FC = ()=>{
                             />
                         </Grid>
                     </Grid>
+                    <AsyncAutoComplete
+                        fetchOptions={fetchOptions}
+                        AutocompleteProps={{
+                            freeSolo:true,
+                            getOptionLabel: option => option.name
+                        }}
+                        TextFieldProps={{
+                            label: 'Gêneros'
+                        }}
+                    />
+                    <GridSelected>
+                        <GridSelectedItem onClick={()=>{}} xs={6}>
+                            <Typography noWrap={true}>Genero 1aaaaaaaaaaaaaaaaaaaaaaaaaaaaa</Typography>
+                        </GridSelectedItem>
+                    </GridSelected>
                 </Grid> 
-
+                
 
                 <Grid item xs={12} md={6}>
                     <RatingField 
