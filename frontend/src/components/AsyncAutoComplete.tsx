@@ -90,13 +90,7 @@ const AsyncAutoComplete:React.FC<AsyncAutoCompleteProps> = (props) => {
                 }
                 
                 
-            } catch (error) {
-                console.error(error);
-                snackbar.enqueueSnackbar(
-                    "Não foi possível carregar as informações",
-                    {variant: 'error'}
-                );
-            }finally{
+            } finally{
                 setLoading(false);
             }
 
