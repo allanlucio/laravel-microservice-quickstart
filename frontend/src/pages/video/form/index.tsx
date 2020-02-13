@@ -22,6 +22,8 @@ import genreHttp from '../../../util/http/genre-http';
 import { GridSelected } from '../../../components/GridSelected';
 import GridSelectedItem from '../../../components/GridSelectedItem';
 import useHttpHandled from '../../../hooks/useHttpHandled';
+import GenreField from './GenreField';
+import CategoryField from './CategoryField';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -47,6 +49,12 @@ const validationSchema = yup.object().shape({
         .string()
         .label("Classificaçao")
         .required(),
+    genres: yup.string()
+        .label("Gêneros")
+        .required(),
+    categories: yup.string()
+        .label("Categorias")
+        .required()
 
 });
 
@@ -110,7 +118,8 @@ export const Form: React.FC = () => {
     } = useForm({
         validationSchema,
         defaultValues: {
-
+            genres: [],
+            categories: [],
         }
 
     });
@@ -131,7 +140,12 @@ export const Form: React.FC = () => {
     //   }, []);
 
     useEffect(() => {
-        ["rating", "opened", ...fileFields].forEach(name => register({ name }));
+        ["rating",
+            "opened",
+            "genres",
+            "categories",
+            ...fileFields
+        ].forEach(name => register({ name }));
     }, [register])
 
 
@@ -196,13 +210,7 @@ export const Form: React.FC = () => {
 
         setValue(event.target.name, event.target.value, false);
     };
-    const autocompleteHttp = useHttpHandled();
-    const fetchOptions = (searchText) => autocompleteHttp(
-        genreHttp.list(
-            {
-                queryParams:
-                    { search: searchText, all: "" }
-            }).then((data) => data.data));
+
     return (
         <DefaultForm
             GridItemProps={{ xs: 12, md: 12 }}
@@ -269,21 +277,37 @@ export const Form: React.FC = () => {
                             />
                         </Grid>
                     </Grid>
-                    <AsyncAutoComplete
-                        fetchOptions={fetchOptions}
-                        AutocompleteProps={{
-                            freeSolo: true,
-                            getOptionLabel: option => option.name
-                        }}
-                        TextFieldProps={{
-                            label: 'Gêneros'
-                        }}
-                    />
-                    <GridSelected>
-                        <GridSelectedItem onClick={() => { }} xs={6}>
-                            <Typography noWrap={true}>Genero</Typography>
-                        </GridSelectedItem>
-                    </GridSelected>
+
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <GenreField
+                                genres={watch('genres')}
+                                setGenres={(value) => setValue('genres', value, true)}
+                                error={errors.genres}
+                                disabled={loading}
+
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <CategoryField
+                                categories={watch('categories')}
+                                setCategories={(value) => setValue('categories', value, true)}
+                                genres={watch('genres')}
+                                error={errors.categories}
+                                disabled={loading}
+
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormHelperText>
+                                Escolha os gêneros
+                                </FormHelperText>
+                            <FormHelperText>
+                                Escolha pelo menos uma categoria de cada genero
+                            </FormHelperText>
+                        </Grid>
+                    </Grid>
+
                 </Grid>
 
 
