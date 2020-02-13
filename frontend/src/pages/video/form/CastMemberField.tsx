@@ -11,30 +11,19 @@ import { Genre } from '../../../util/models';
 import genreRoutes from '../../../routes/resources/genre';
 import { getGenresFromCategory } from '../../../util/model-filters';
 import { grey } from '@material-ui/core/colors';
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        genresSubtitle: {
-            color: grey[800],
-            fontSize: '0.8rem',
 
-        }
-    })
-
-);
-interface CategoryFieldProps {
-    categories: any[];
-    setCategories: (categories) => void;
-    genres: Genre[];
+interface CastMemberFieldProps {
+    castMembers: any[];
+    setCastMemebers: (castMember) => void;
     disabled?: boolean;
     error: any;
     FormControlProps?: FormControlProps
 
 };
-const CategoryField: React.FC<CategoryFieldProps> = (props) => {
-    const classes = useStyles();
-    const { categories, setCategories, genres, disabled, error } = props;
+const CastMemberField: React.FC<CastMemberFieldProps> = (props) => {
+    const { castMembers, setCastMemebers, disabled, error } = props;
     const autocompleteHttp = useHttpHandled();
-    const { addItem, removeItem } = useCollectionManager(categories, setCategories);
+    const { addItem, removeItem } = useCollectionManager(castMembers, setCastMemebers);
 
     function fetchOptions(searchText) {
         return autocompleteHttp(
@@ -42,7 +31,7 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
                 {
                     queryParams:
                     {
-                        genres: genres.map((genre) => genre.id).join(","),
+                        search: searchText,
                         all: ""
                     }
                 }).then((data) => data.data));
@@ -54,14 +43,14 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
                 fetchOptions={fetchOptions}
                 AutocompleteProps={{
                     clearOnEscape: true,
-                    freeSolo: false,
+                    freeSolo: true,
                     getOptionLabel: option => option.name,
                     getOptionSelected: (option, value) => option.id === value.id,
                     onChange: (event, value) => addItem(value),
-                    disabled: disabled === true || !genres.length
+                    disabled
                 }}
                 TextFieldProps={{
-                    label: 'Categorias',
+                    label: 'Memebros de elenco',
                     error: error !== undefined
                 }}
             />
@@ -73,11 +62,10 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
                 {...props.FormControlProps}
             >
                 <GridSelected>
-                    {categories.map((category, key) => {
-                        const categoryGenres =getGenresFromCategory(genres,category).map(genre => genre.name).join(",");
-                        return (<GridSelectedItem key={key} onDelete={() => { removeItem(category) }} xs={12}>
-                            <Typography noWrap={true}>{category.name}</Typography>
-                            <Typography className={classes.genresSubtitle} noWrap={true}>Gêneros: {categoryGenres}</Typography>
+                    {castMembers.map((castMember, key) => {
+                        return (<GridSelectedItem key={key} onDelete={() => { removeItem(castMember) }} xs={12}>
+                            <Typography noWrap={true}>{castMember.name}</Typography>
+                            
                         </GridSelectedItem>
                     )
                 })}
@@ -91,4 +79,4 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
     );
 };
 
-export default CategoryField;
+export default CastMemberField;

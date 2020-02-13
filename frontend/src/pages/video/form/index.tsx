@@ -24,6 +24,7 @@ import GridSelectedItem from '../../../components/GridSelectedItem';
 import useHttpHandled from '../../../hooks/useHttpHandled';
 import GenreField from './GenreField';
 import CategoryField from './CategoryField';
+import CastMemberField from './CastMemberField';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -49,12 +50,35 @@ const validationSchema = yup.object().shape({
         .string()
         .label("Classificaçao")
         .required(),
-    genres: yup.string()
-        .label("Gêneros")
-        .required(),
-    categories: yup.string()
+    categories_id: yup.array()
         .label("Categorias")
         .required()
+        .transform((array) => {
+            const result = array.map((elemento) => elemento.id)
+            return result;
+        })
+    ,
+    genres_id: yup.array()
+        .label("Gêneros")
+        .required()
+        .test('teste', "mensagem", value => {
+            console.log(yup.ref('categories_id'), "test");
+            return true;
+        })
+        .transform((array) => {
+            console.log("transform");
+            const result = array.map((elemento) => elemento.id)
+
+            return result;
+        }),
+
+    cast_members_id: yup.array()
+        .label("Membros de elenco")
+        .required()
+        .transform((array) => {
+            const result = array.map((elemento) => elemento.id)
+            return result;
+        })
 
 });
 
@@ -118,8 +142,9 @@ export const Form: React.FC = () => {
     } = useForm({
         validationSchema,
         defaultValues: {
-            genres: [],
-            categories: [],
+            genres_id: [],
+            categories_id: [],
+            cast_members_id: [],
         }
 
     });
@@ -130,20 +155,14 @@ export const Form: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'))
 
-    // const [categoriesList, setCategoriesList] = useState<Category[]>([]);
-    // const categoriesValue = watch('categories_id');
-    // useEffect(() => {
-    //     categoryHttp.list().then(response => {
-    //         setCategoriesList(response.data.data);
-    //     });
 
-    //   }, []);
 
     useEffect(() => {
         ["rating",
             "opened",
-            "genres",
-            "categories",
+            "genres_id",
+            "categories_id",
+            "cast_members_id",
             ...fileFields
         ].forEach(name => register({ name }));
     }, [register])
@@ -281,19 +300,21 @@ export const Form: React.FC = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
-                                genres={watch('genres')}
-                                setGenres={(value) => setValue('genres', value, true)}
-                                error={errors.genres}
+                                genres={watch('genres_id')}
+                                categories={watch('categories_id')}
+                                setGenres={(value) => setValue('genres_id', value, true)}
+                                setCategories={(value) => setValue('categories_id', value, true)}
+                                error={errors.genres_id}
                                 disabled={loading}
 
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <CategoryField
-                                categories={watch('categories')}
-                                setCategories={(value) => setValue('categories', value, true)}
-                                genres={watch('genres')}
-                                error={errors.categories}
+                                categories={watch('categories_id')}
+                                setCategories={(value) => setValue('categories_id', value, true)}
+                                genres={watch('genres_id')}
+                                error={errors.categories_id}
                                 disabled={loading}
 
                             />
@@ -305,6 +326,15 @@ export const Form: React.FC = () => {
                             <FormHelperText>
                                 Escolha pelo menos uma categoria de cada genero
                             </FormHelperText>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <CastMemberField
+                                castMembers={watch('cast_members_id')}
+                                setCastMemebers={(value) => setValue('cast_members_id', value, true)}
+                                error={errors.cast_members_id}
+                                disabled={loading}
+
+                            />
                         </Grid>
                     </Grid>
 
@@ -392,7 +422,7 @@ export const Form: React.FC = () => {
             <SubmitActions
                 disabledButtons={loading}
                 handleSave={() => triggerValidation().then(isValid => {
-                    isValid && onSubmit(getValues(), null)
+                    isValid && onSubmit(validationSchema.cast(getValues()), null)
                 }
                 )} />
 
