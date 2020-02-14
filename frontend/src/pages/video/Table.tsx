@@ -16,7 +16,8 @@ import { BadgeYes, BadgeNo } from '../../components/Badge';
 import { useSnackbar } from 'notistack';
 import * as yup from '../../util/vendor/yup';
 import categoryHttp from '../../util/http/category-http';
-import DatatableExtraFilterHelper from '../../util/datatable-extra-filter-helper';
+import DatatableExtraFilterHelper from '../../hooks/useFilter/datatableExtraFilterHelper';
+import { CategoryExtraFilterDefinition } from '../../util/extra-filters/CategoryExtraFilter';
 
 
 
@@ -136,31 +137,7 @@ export const Table: React.FC = () => {
             rowsPerPage: rowsPerPage,
             rowsPerPageOptions,
             tableRef,
-            extraFilter: {
-                createValidationSchema: () => {
-                    return yup.object().shape({
-                        categories: yup.mixed()
-                            .nullable()
-                            .transform(value => {
-                                return !value || value === '' ? undefined : value.split(',')
-                            })
-                            .default(null)
-                    });
-                },
-                formatSearchParams: (debouncedState) => {
-                    return debouncedState.extraFilter ? {
-                        ...(
-                            debouncedState.extraFilter.categories &&
-                            { categories: debouncedState.extraFilter.categories.join(',') }
-                        )
-                    } : undefined
-                },
-                getStateFromUrl: (queryParams) => {
-                    return {
-                        categories: queryParams.get('categories')
-                    }
-                }
-            }
+            extraFilter: [CategoryExtraFilterDefinition]
         });
 
     const datatableHelper = new DatatableExtraFilterHelper(

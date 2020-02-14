@@ -1,13 +1,13 @@
 import {useState,useEffect, useRef, useReducer, Dispatch, Reducer} from "react";
-import reducer, { Creators, Types } from '../store/filter';
-import { State as FilterState, Actions as FilterActions } from "../store/filter/types";
+import reducer, { Creators, Types } from '../../store/filter';
+import { State as FilterState, Actions as FilterActions } from "../../store/filter/types";
 import { MUIDataTableColumn } from "mui-datatables";
 import {useDebounce} from "use-debounce";
 import { useHistory } from "react-router";
 import {History} from 'history';
 import {isEqual} from 'lodash';
-import * as yup from '../util/vendor/yup';
-import { MuiDatatableRefComponent } from "../components/Table";
+import * as yup from '../../util/vendor/yup';
+import { MuiDatatableRefComponent } from "../../components/Table";
 
 
 interface FilterManagerOptions{
@@ -17,10 +17,10 @@ interface FilterManagerOptions{
     debounceTime: number;
     history: History;
     tableRef: React.MutableRefObject<MuiDatatableRefComponent>;
-    extraFilter?: ExtraFilter;
+    extraFilter?: ExtraFilter[];
 }
 
-interface ExtraFilter{
+export interface ExtraFilter{
     getStateFromUrl: (queryParams: URLSearchParams) => any
     formatSearchParams: (debouncedState: FilterState) => any
     createValidationSchema:() => any
@@ -60,7 +60,7 @@ export class FilterManager {
     history: History;
     tableRef: React.MutableRefObject<MuiDatatableRefComponent>;
     debouncedState: FilterState = null as any;
-    extraFilter?: ExtraFilter;
+    extraFilter?: ExtraFilter[];
 
     
     
@@ -181,10 +181,17 @@ export class FilterManager {
                 sort: this.debouncedState.order.sort,
                 dir: this.debouncedState.order.dir,
             }),
-            ...(
-                this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
-            )
+            ...this.extraFormSearchParams()
         }
+    }
+
+    private extraFormSearchParams(){
+        let extraParams = {};
+        this.extraFilter && this.extraFilter.forEach((param)=>{
+            extraParams = {...extraParams, ...param.formatSearchParams(this.debouncedState)};
+        })
+        console.log("Extra Params", extraParams);
+        return extraParams;
     }
     getStateFromUrl(){
         const queryParams = new URLSearchParams(this.history.location.search.substr(1));
@@ -200,12 +207,20 @@ export class FilterManager {
             },
             ...(
                 this.extraFilter && {
-                    extraFilter:this.extraFilter.getStateFromUrl(queryParams)
+                    extraFilter:this.extraStateFromUrl(queryParams)
                 }
             )
         });
         console.log(state);
         return state;
+    }
+    private extraStateFromUrl(queryParams){
+        let extraStateFromUrl = {};
+        this.extraFilter && this.extraFilter.forEach((param)=>{
+            extraStateFromUrl = {...extraStateFromUrl, ...param.getStateFromUrl(queryParams)};
+        })
+        console.log("Extra Params", extraStateFromUrl);
+        return extraStateFromUrl;
     }
     private createValidationSchema(){
         this.schema = yup.object().shape({
@@ -240,12 +255,20 @@ export class FilterManager {
                     .default(null)
             }),
             ...(
-                this.extraFilter && {extraFilter: this.extraFilter.createValidationSchema()}
+                this.extraFilter && {extraFilter: this.extraValidationSchema()}
             )
                 
             
 
         })
+    }
+    private extraValidationSchema(){
+        let extraSchema = {};
+        this.extraFilter && this.extraFilter.forEach((param)=>{
+            extraSchema = {...extraSchema, ...param.createValidationSchema()};
+        })
+        console.log("Extra Params", extraSchema);
+        return yup.object().shape(extraSchema);
     }
 
 }

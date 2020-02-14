@@ -1,6 +1,9 @@
-import { State as FilterState} from "../store/filter/types";
+import { State as FilterState} from "../../store/filter/types";
+import { isArray } from "util";
 
-export default class DatatableExtraFilterHelper{
+
+
+export default class DatatableExtraFilterHelper {
     columnsDefinition: any[];
     extraFilterColumns: string[];
     filterState: FilterState;
@@ -40,7 +43,13 @@ export default class DatatableExtraFilterHelper{
         return this.columnsDefinition.findIndex(c=> c.name ===columnName);
     }
     getFilterValues(columnName){
-        return this.filterState.extraFilter && this.filterState.extraFilter[columnName];
+        const filterValue=this.filterState.extraFilter && this.filterState.extraFilter[columnName];
+        console.log(filterValue,"filterValue");
+
+        if(filterValue!==null && filterValue!=="" && filterValue!==undefined && !isArray(filterValue)){
+            return [filterValue];
+        }
+        return filterValue;
     }
 
 }
