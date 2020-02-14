@@ -14,6 +14,7 @@ class VideoController extends BasicCrudController
 
     public function __construct()
     {
+
         $this->rules = [
             "title"=>"required|max:255",
             "description"=>"required",
@@ -39,6 +40,7 @@ class VideoController extends BasicCrudController
 
     public function store(Request $request)
     {
+
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);
@@ -51,6 +53,8 @@ class VideoController extends BasicCrudController
 
     public function update(Request $request, $id)
     {
+
+        $request["opened"] = $request["opened"]==='true';
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesUpdate());
         $obj=$this->findOrFail($id);

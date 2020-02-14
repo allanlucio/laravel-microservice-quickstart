@@ -11,6 +11,7 @@ import { Genre } from '../../../util/models';
 import genreRoutes from '../../../routes/resources/genre';
 import { getGenresFromCategory } from '../../../util/model-filters';
 import { grey } from '@material-ui/core/colors';
+import castMemberHttp from '../../../util/http/cast-member-http';
 
 interface CastMemberFieldProps {
     castMembers: any[];
@@ -27,7 +28,7 @@ const CastMemberField: React.FC<CastMemberFieldProps> = (props) => {
 
     function fetchOptions(searchText) {
         return autocompleteHttp(
-            categoryHttp.list(
+            castMemberHttp.list(
                 {
                     queryParams:
                     {

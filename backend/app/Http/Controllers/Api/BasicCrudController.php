@@ -47,6 +47,7 @@ abstract class BasicCrudController extends Controller
 
     public function store(Request $request)
     {
+
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);
         $obj->refresh();
@@ -58,6 +59,7 @@ abstract class BasicCrudController extends Controller
     }
 
     protected function findOrFail($id){
+
         $model = $this->model();
         $keyName = (new $model)->getRouteKeyName();
         return $this->model()::where($keyName,$id)->firstOrFail();

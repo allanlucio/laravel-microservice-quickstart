@@ -25,6 +25,9 @@ import useHttpHandled from '../../../hooks/useHttpHandled';
 import GenreField from './GenreField';
 import CategoryField from './CategoryField';
 import CastMemberField from './CastMemberField';
+import { getGenresFromCategory, genresHasAtLeastOneCategory } from '../../../util/model-filters';
+import { isArray } from 'util';
+import FormDataHelper from '../../../util/form-data-helpers';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -53,24 +56,23 @@ const validationSchema = yup.object().shape({
     categories_id: yup.array()
         .label("Categorias")
         .required()
-        .transform((array) => {
-            const result = array.map((elemento) => elemento.id)
-            return result;
+        .test('genresHasCategory', "Cada gênero precisa ter ao menos uma categoria selecionada.", function(categories){
+            const genres = this.parent.genres_id;
+            const genresHasCategories = genresHasAtLeastOneCategory(genres,categories);
+            return genresHasCategories.length === genres.length;
         })
     ,
     genres_id: yup.array()
         .label("Gêneros")
         .required()
-        .test('teste', "mensagem", value => {
-            console.log(yup.ref('categories_id'), "test");
-            return true;
-        })
-        .transform((array) => {
-            console.log("transform");
-            const result = array.map((elemento) => elemento.id)
+        
+        // .transform((array) => {
+        //     console.log("transform");
+        //     const result = array.map((elemento) => elemento.id)
 
-            return result;
-        }),
+        //     return result;
+        // })
+        ,
 
     cast_members_id: yup.array()
         .label("Membros de elenco")
@@ -145,6 +147,8 @@ export const Form: React.FC = () => {
             genres_id: [],
             categories_id: [],
             cast_members_id: [],
+            rating:"L",
+            opened:false
         }
 
     });
@@ -179,7 +183,11 @@ export const Form: React.FC = () => {
                 const { data } = await videoHttp.get(id);
                 if (isSubscribed) {
                     setVideo(data.data);
-                    reset(data.data);
+                    const formData = data.data;
+                    formData.categories_id=formData.categories;
+                    formData.genres_id=formData.genres;
+                    formData.cast_members_id=formData.cast_members;
+                    reset(formData);
 
                 }
             } catch (error) {
@@ -200,9 +208,16 @@ export const Form: React.FC = () => {
     function onSubmit(formData, event) {
         setLoading(true);
 
+        formData.categories_id=formData.categories_id.map(category=>category.id);
+        formData.genres_id=formData.genres_id.map(genre=>genre.id);
+    
+        const formDataHelper = new FormDataHelper(formData,fileFields,video!==null);
+        const fileFormData = formDataHelper.getFormData();
+        
+
         const http = video ?
-            videoHttp.update(video.id, formData) :
-            videoHttp.create(formData);
+            videoHttp.create(fileFormData,video.id,{headers:formDataHelper.getHeaders()}) :
+            videoHttp.create(fileFormData);
 
         http.then(({ data }) => {
             snackbar.enqueueSnackbar('Video Salvo com Sucesso!', {
@@ -397,9 +412,9 @@ export const Form: React.FC = () => {
                     <FormControlLabel
                         control={
                             <Checkbox
-
-                                name="opened"
+                                value={watch("opened")}
                                 checked={watch("opened")}
+                                name="opened"
                                 onChange={() => setValue('opened', !getValues()['opened'])}
                                 color={"primary"}
 
