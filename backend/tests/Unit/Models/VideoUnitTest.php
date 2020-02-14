@@ -5,6 +5,7 @@ namespace Tests\Unit\Models\Video;
 use App\Models\Traits\UploadFiles;
 use App\Models\Video;
 use App\Models\Traits\Uuid;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Tests\TestCase;
 
@@ -81,7 +82,7 @@ public function testIfUseTraits(){
 
 
     $traits=[
-        SoftDeletes::class, Uuid::class, UploadFiles::class
+        SoftDeletes::class, Uuid::class, UploadFiles::class, Filterable::class
 
     ];
     $videoTrais=array_values(class_uses(Video::class));
