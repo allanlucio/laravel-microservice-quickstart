@@ -93,7 +93,7 @@ export class FilterManager {
         this.resetTablePagination();
     }
     changeExtraFilter(data){
-        console.log(data);
+        console.log(data, "Change Extra Filter");
         this.dispatch(Creators.updateExtraFilter(data));
 
         

@@ -40,7 +40,7 @@ class VideoController extends BasicCrudController
 
     public function store(Request $request)
     {
-
+        $request["opened"] = $request["opened"]==='true';
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);

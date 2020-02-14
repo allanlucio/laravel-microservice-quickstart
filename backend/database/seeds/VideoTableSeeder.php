@@ -29,7 +29,7 @@ class VideoTableSeeder extends Seeder
         $this->allCastMembers = CastMember::all();
         $self = $this;
         Model::reguard();
-        factory(Video::class,100)
+        factory(Video::class,20)
         ->make()
         ->each(function($video) use($self){
             $self->fetchRelations();
@@ -51,7 +51,7 @@ class VideoTableSeeder extends Seeder
         }
 
         public function fetchRelations(){
-            $subGenres = $this->allGenres->random(5)->load("categories");
+            $subGenres = $this->allGenres->random(2)->load("categories");
             $categoriesId = [];
             foreach($subGenres as $genre){
 
