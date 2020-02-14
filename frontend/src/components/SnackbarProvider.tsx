@@ -30,6 +30,7 @@ const SnackbarProvider: React.FC<SnackbarProviderProps> = (props)=>{
             horizontal: 'right',
             vertical: 'top'
         },
+        preventDuplicate:true,
         ref: (el) => snackBarProviderRef= el,
         action: (key)=> (
         <IconButton color='inherit' style={{fontSize: 20}} onClick={()=> snackBarProviderRef.closeSnackbar(key)}> 

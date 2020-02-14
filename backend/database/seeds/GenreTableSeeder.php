@@ -14,10 +14,10 @@ class GenreTableSeeder extends Seeder
     public function run()
     {
             $categories = Category::all();
-            factory(Genre::class,100)
+            factory(Genre::class,6)
                 ->create()
                 ->each(function($genre) use ($categories){
-                    $categoriesId = $categories->random(5)->pluck("id")->toArray();
+                    $categoriesId = $categories->random(2)->pluck("id")->toArray();
                     $genre->categories()->attach($categoriesId);
             });
 

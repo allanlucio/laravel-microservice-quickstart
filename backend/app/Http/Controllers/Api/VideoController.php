@@ -14,6 +14,7 @@ class VideoController extends BasicCrudController
 
     public function __construct()
     {
+
         $this->rules = [
             "title"=>"required|max:255",
             "description"=>"required",
@@ -39,6 +40,7 @@ class VideoController extends BasicCrudController
 
     public function store(Request $request)
     {
+        if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);
@@ -51,6 +53,8 @@ class VideoController extends BasicCrudController
 
     public function update(Request $request, $id)
     {
+        if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
+
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesUpdate());
         $obj=$this->findOrFail($id);
@@ -58,6 +62,20 @@ class VideoController extends BasicCrudController
 
         $resource = $this->resource();
         return new $resource($obj);
+    }
+
+    private function fixedBoolean($value){
+
+        if(is_bool($value)){
+            return $value;
+        }else if($value==='true' || $value === '1'){
+            return true;
+        }
+        else if($value==='false' || $value === '0'){
+            return false;
+        }
+
+        return $value;
     }
     protected function addRuleIfGenreHasCategories(Request $request){
         $categoriesId=$request->get("categories_id");

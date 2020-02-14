@@ -16,6 +16,8 @@ import { BadgeYes, BadgeNo } from '../../components/Badge';
 import { useSnackbar } from 'notistack';
 import * as yup from '../../util/vendor/yup';
 import categoryHttp from '../../util/http/category-http';
+import { CategoryExtraFilterDefinition } from '../../util/extra-filters/CategoryExtraFilter';
+import DatatableExtraFilterHelper from '../../hooks/useFilter/datatableExtraFilterHelper';
 
 
 
@@ -133,43 +135,13 @@ export const Table: React.FC = ()=>{
         rowsPerPage:rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-        extraFilter:{
-            createValidationSchema:()=>{
-                return yup.object().shape({
-                    categories:yup.mixed()
-                        .nullable()
-                        .transform(value => {
-                            return !value || value === ''? undefined: value.split(',')
-                        })
-                        .default(null)
-                });
-            },
-            formatSearchParams: (debouncedState) => {
-                return debouncedState.extraFilter?{
-                    ...(
-                        debouncedState.extraFilter.categories &&
-                        {categories: debouncedState.extraFilter.categories.join(',')}
-                    )
-                }: undefined
-            },
-            getStateFromUrl: (queryParams) => {
-                return {
-                    type: queryParams.get('categories')
-                }
-            }
-        }  
+        extraFilter: [CategoryExtraFilterDefinition]  
     });
     
-    const indexColumnCategories = columnsDefinition.findIndex(c=> c.name ==='categories');
-    const columnCategories = columnsDefinition[indexColumnCategories];
-    const categoriesFilterValue = filterState.extraFilter && filterState.extraFilter.categories;
-    (columnCategories.options as any).filterList = categoriesFilterValue
-        ? categoriesFilterValue
-        :[];
-    const serverSideFilterList = columnsDefinition.map(column => []);
-    if(categoriesFilterValue){
-        serverSideFilterList[indexColumnCategories] = categoriesFilterValue;
-    }
+    const datatableHelper = new DatatableExtraFilterHelper(
+        columnsDefinition, filterState,debouncedFilterState, ['categories']
+    );
+    const serverSideFilterList = datatableHelper.serverSideFilterList;
     
     useEffect(() => {
         (async () => {
@@ -179,7 +151,10 @@ export const Table: React.FC = ()=>{
                 const {data}= await categoryHttp.list<ListResponse<Category>>({queryParams:{all:''}});
                 if(subscribed.current){
                     setCategories(data.data);
-                    (columnCategories.options as any).filterOptions.names = data.data.map(category=> category.name);
+                    datatableHelper.setColumnFilterOptions(
+                        'categories',
+                        data.data.map(category => category.name)
+                    )
                     
                 }
                 

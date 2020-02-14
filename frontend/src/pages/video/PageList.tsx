@@ -10,14 +10,14 @@ import Table from './Table';
 export const List: React.FC = ()=>{
     
     return (
-        <Page title = {'Listagem de Gêneros'} >
+        <Page title = {'Listagem de Video'} >
             <Box dir={'rtl'} paddingBottom={2}>
                 <Fab 
-                title="Adicionar Gênero" 
+                title="Adicionar Video" 
                 size="small"
                 color="secondary"
                 component={Link}
-                to='/genres/create'
+                to='/videos/create'
                 >
                     <AddIcon></AddIcon>
 

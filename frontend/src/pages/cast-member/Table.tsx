@@ -16,6 +16,8 @@ import useFilter from '../../hooks/useFilter';
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import * as yup from '../../util/vendor/yup';
 import {invert} from 'lodash';
+import { CastMemberExtraFilter } from '../../util/extra-filters/CastMemberExtraFilter';
+import DatatableExtraFilterHelper from '../../hooks/useFilter/datatableExtraFilterHelper';
 
 
 
@@ -111,42 +113,15 @@ export const Table: React.FC = ()=>{
         rowsPerPage:rowsPerPage,
         rowsPerPageOptions,
         tableRef,
-        extraFilter:{
-            createValidationSchema:()=>{
-                return yup.object().shape({
-                    type:yup.string()
-                        .nullable()
-                        .transform(value => {
-                            return !value || !castMemberNames.includes(value)?undefined: value;
-                        })
-                        .default(null)
-                });
-            },
-            formatSearchParams: (debouncedState) => {
-                return debouncedState.extraFilter?{
-                    ...(
-                        debouncedState.extraFilter.type &&
-                        {type: debouncedState.extraFilter.type}
-                    )
-                }: undefined
-            },
-            getStateFromUrl: (queryParams) => {
-                return {
-                    type: queryParams.get('type')
-                }
-            }
-        } 
+        extraFilter: [CastMemberExtraFilter]
+
+        
     });
-    const indexColumnType = columnsDefinition.findIndex(c=> c.name ==='type');
-    const columnType = columnsDefinition[indexColumnType];
-    const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type as never;
-    (columnType.options as any).filterList = typeFilterValue
-        ? [typeFilterValue]
-        :[];
-    const serverSideFilterList = columnsDefinition.map(column => []);
-    if(typeFilterValue){
-        serverSideFilterList[indexColumnType] = [typeFilterValue];
-    }
+    const datatableHelper = new DatatableExtraFilterHelper(
+        columnsDefinition, filterState,debouncedFilterState, ['type']
+    );
+    const serverSideFilterList = datatableHelper.serverSideFilterList;
+   
 
     useEffect(()=>{
         subscribed.current = true;

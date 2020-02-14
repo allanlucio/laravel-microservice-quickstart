@@ -31,12 +31,13 @@ export default  class HttpResource {
         return this.http.get<T>(`${this.resource}/${id}`);
     }
 
-    create<T = any>(data){
-        return this.http.post<T>(this.resource,data);
+    create<T = any>(data, id:any=null,config={}){
+        const resource = id?`${this.resource}/${id}`:this.resource;
+        return this.http.post<T>(resource,data,config);
     }
 
-    update<T = any>(id, data){
-        return this.http.put<T>(`${this.resource}/${id}`,data);
+    update<T = any>(id, data,config={}){
+        return this.http.put<T>(`${this.resource}/${id}`,data,config);
     }
 
     delete<T = any>(id){
