@@ -378,13 +378,14 @@ export const Form: React.FC = () => {
                                 accept={'image/*'}
                                 label={"Thumb"}
                                 setValue={(value) => setValue('thumb_file', value)}
+                                link={video && video.thumb_file_url}
 
                             />
                             <UploadField
                                 accept={'image/*'}
                                 label={"Banner"}
                                 setValue={(value) => setValue('banner_file', value)}
-
+                                link={video && video.banner_file_url}
                             />
 
                         </CardContent>
@@ -398,13 +399,13 @@ export const Form: React.FC = () => {
                                 accept={'video/mp4'}
                                 label={"Trailer"}
                                 setValue={(value) => setValue('trailer_file', value)}
-
+                                link={video && video.trailer_file_url}
                             />
                             <UploadField
                                 accept={'video/mp4'}
                                 label={"Video Principal"}
                                 setValue={(value) => setValue('video_file', value)}
-
+                                link={video && video.video_file_url}
                             />
                         </CardContent>
                     </Card>

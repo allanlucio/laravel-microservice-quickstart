@@ -1,7 +1,7 @@
 // @flow 
 import * as React from 'react';
 import {useRef} from 'react';
-import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText, Box, Button } from '@material-ui/core';
+import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText, Box, Button, Link } from '@material-ui/core';
 import { FormControlLabelProps } from '@material-ui/core/FormControlLabel';
 import { Rating } from '../../../components/Rating';
 import { FormControlProps } from '@material-ui/core/FormControl';
@@ -15,6 +15,7 @@ interface UploadFieldProps {
     disabled?: boolean;
     error?: any;
     FormControlProps?: FormControlProps
+    link?: string | null
 
 
     
@@ -22,7 +23,7 @@ interface UploadFieldProps {
 
 export const UploadField: React.FC<UploadFieldProps> = (props) => {
     const fileRef = useRef() as React.MutableRefObject<InputFileComponent>
-    const {label,accept, setValue, disabled, error} = props;
+    const {label,accept,setValue,disabled,error,link} = props;
 
     return (
         <FormControl 
@@ -60,8 +61,10 @@ export const UploadField: React.FC<UploadFieldProps> = (props) => {
                         </Button>
                     }/>
             
-            
-
+                {link && (
+                    <Link href={link?link:"#"} target={'_blank'}>Clique para ver o arquivo {label}</Link>
+                )}
+                
             {
                 error && <FormHelperText >{error.message}</FormHelperText>
             }
