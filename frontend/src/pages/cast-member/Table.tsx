@@ -118,7 +118,7 @@ export const Table: React.FC = ()=>{
         
     });
     const datatableHelper = new DatatableExtraFilterHelper(
-        columnsDefinition, filterState, ['type']
+        columnsDefinition, filterState,debouncedFilterState, ['type']
     );
     const serverSideFilterList = datatableHelper.serverSideFilterList;
    

@@ -26,4 +26,12 @@ class VideoFilter extends DefaultModelFilter
                 ->orWhereIn('name',$idsOrNames);
         });
     }
+    public function genres($genres){
+        $idsOrNames = explode(",",$genres);
+        $this->whereHas('genres',function(Builder $query) use ($idsOrNames){
+            $query
+                ->whereIn('id',$idsOrNames)
+                ->orWhereIn('name',$idsOrNames);
+        });
+    }
 }

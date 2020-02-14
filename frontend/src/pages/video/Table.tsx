@@ -18,6 +18,8 @@ import * as yup from '../../util/vendor/yup';
 import categoryHttp from '../../util/http/category-http';
 import DatatableExtraFilterHelper from '../../hooks/useFilter/datatableExtraFilterHelper';
 import { CategoryExtraFilterDefinition } from '../../util/extra-filters/CategoryExtraFilter';
+import genreHttp from '../../util/http/genre-http';
+import GenreExtraFilterDefinition from '../../util/extra-filters/GenreExtraFilter';
 
 
 
@@ -121,6 +123,7 @@ export const Table: React.FC = () => {
     const tableRef = useRef() as React.MutableRefObject<MuiDatatableRefComponent>;
     const [data, setData] = useState<Video[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [genres, setGenres] = useState<Genre[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const {
         filterState,
@@ -137,25 +140,30 @@ export const Table: React.FC = () => {
             rowsPerPage: rowsPerPage,
             rowsPerPageOptions,
             tableRef,
-            extraFilter: [CategoryExtraFilterDefinition]
+            extraFilter: [CategoryExtraFilterDefinition, GenreExtraFilterDefinition]
         });
 
     const datatableHelper = new DatatableExtraFilterHelper(
-        columnsDefinition, filterState, ['categories', 'genres']
-    );
+        columnsDefinition, filterState, debouncedFilterState, ['categories', 'genres']
+    ); 
     const serverSideFilterList = datatableHelper.serverSideFilterList;
     
     useEffect(() => {
         (async () => {
             try {
-                console.log("useEffect");
-
-                const { data } = await categoryHttp.list<ListResponse<Category>>({ queryParams: { all: '' } });
+                const categoryPromise = categoryHttp.list<ListResponse<Category>>({ queryParams: { all: '' } });
+                const genrePromise = genreHttp.list<ListResponse<Genre>>({ queryParams: { all: '' } });
+                const [{data:categoryData} ,{data:genreData}]= await Promise.all([categoryPromise, genrePromise]);
+                
+                console.log(categoryData);
                 if (subscribed.current) {
-                    setCategories(data.data);
                     datatableHelper.setColumnFilterOptions(
                         'categories',
-                        data.data.map(category => category.name)
+                        categoryData.data.map(category => category.name)
+                    )
+                    datatableHelper.setColumnFilterOptions(
+                        'genres',
+                        genreData.data.map(genre => genre.name)
                     )
                 }
 
@@ -196,19 +204,12 @@ export const Table: React.FC = () => {
     async function getData() {
         setLoading(true);
         try {
-
+            const queryParams=datatableHelper.getFilterParams();
+            
             const { data } = await videoHttp.list<ListResponse<Video>>({
                 queryParams: {
                     search: filterManager.cleanSearchText(filterState.search),
-                    page: filterState.pagination.page,
-                    per_page: filterState.pagination.per_page,
-                    sort: filterState.order.sort,
-                    dir: filterState.order.dir,
-                    ...(
-                        debouncedFilterState.extraFilter &&
-                        debouncedFilterState.extraFilter.categories &&
-                        { categories: debouncedFilterState.extraFilter.categories.join(",") }
-                    )
+                    ...queryParams
                 }
             });
             if (subscribed.current) {
@@ -233,7 +234,7 @@ export const Table: React.FC = () => {
         <DefaultTable
 
             loading={loading}
-            title="Listagem de Gêneros"
+            title="Listagem de Videos"
             columns={filterManager.columns}
             data={data}
             debouncedSearchTime={debouncedSearchTime}

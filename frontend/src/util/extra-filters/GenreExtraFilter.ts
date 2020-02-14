@@ -3,10 +3,10 @@ import { State } from '../../store/filter/types';
 import {ExtraFilter} from "../../hooks/useFilter";
 
 
-export const CategoryExtraFilterDefinition:ExtraFilter = {
+const GenreExtraFilterDefinition:ExtraFilter = {
     createValidationSchema(){
         return {
-            categories: yup.mixed()
+            genres: yup.mixed()
                 .nullable()
                 .transform(value => {
                     return !value || value === '' ? undefined : value.split(',')
@@ -17,14 +17,16 @@ export const CategoryExtraFilterDefinition:ExtraFilter = {
     formatSearchParams(debouncedState){
         return debouncedState.extraFilter ? {
             ...(
-                debouncedState.extraFilter.categories &&
-                { categories: debouncedState.extraFilter.categories.join(',') }
+                debouncedState.extraFilter.genres &&
+                { genres: debouncedState.extraFilter.genres.join(',') }
             )
         } : undefined
     },
     getStateFromUrl(queryParams) {
         return {
-            categories: queryParams.get('categories')
+            genres: queryParams.get('genres')
         }
     }
 }
+
+export default GenreExtraFilterDefinition;
