@@ -1,23 +1,26 @@
 
 import * as React from 'react';
-import {useState,useEffect} from 'react';
-import {Autocomplete, AutocompleteProps, UseAutocompleteSingleProps} from '@material-ui/lab';
+import { useState, useEffect, useImperativeHandle } from 'react';
+import { Autocomplete, AutocompleteProps, UseAutocompleteSingleProps } from '@material-ui/lab';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import { CircularProgress } from '@material-ui/core';
 import { useSnackbar } from 'notistack';
 import { useDebounce } from 'use-debounce/lib';
 
-interface AsyncAutoCompleteProps{
+interface AsyncAutoCompleteProps extends React.RefAttributes<AsyncAutoCompleteComponent> {
     TextFieldProps?: TextFieldProps;
     debounceTime?: number;
     fetchOptions: (searchText) => Promise<any>;
-    AutocompleteProps?: Omit<AutocompleteProps<any>,'renderInput'> & UseAutocompleteSingleProps<any>;
+    AutocompleteProps?: Omit<AutocompleteProps<any>, 'renderInput'> & UseAutocompleteSingleProps<any>;
 
 }
+export interface AsyncAutoCompleteComponent {
+    clear: () => void
+}
 
-const AsyncAutoComplete:React.FC<AsyncAutoCompleteProps> = (props) => {
-    const {AutocompleteProps, debounceTime = 300} = props;
-    const {freeSolo, onOpen, onClose, onInputChange} = AutocompleteProps as any;
+const AsyncAutoComplete= React.forwardRef<AsyncAutoCompleteComponent,AsyncAutoCompleteProps>((props,ref) => {
+    const { AutocompleteProps, debounceTime = 300 } = props;
+    const { freeSolo, onOpen, onClose, onInputChange } = AutocompleteProps as any;
     const [open, setOpen] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [debouncedSearchTex] = useDebounce(searchText, debounceTime);
@@ -25,90 +28,101 @@ const AsyncAutoComplete:React.FC<AsyncAutoCompleteProps> = (props) => {
     const [options, setOptions] = useState([]);
     const snackbar = useSnackbar();
     const textFieldProps: TextFieldProps = {
-        margin:"normal",
-        variant:"outlined",
-        fullWidth:true,
-        InputLabelProps:{shrink:true},
-        ...(props.TextFieldProps && {...props.TextFieldProps})
+        margin: "normal",
+        variant: "outlined",
+        fullWidth: true,
+        InputLabelProps: { shrink: true },
+        ...(props.TextFieldProps && { ...props.TextFieldProps })
 
     }
 
     const autocompleteProps: AutocompleteProps<any> = {
         loadingText: 'Carregando...',
         noOptionsText: "Nenhum item encontrado",
-        ...(AutocompleteProps && {...AutocompleteProps}),
+        ...(AutocompleteProps && { ...AutocompleteProps }),
         open,
         loading,
         options,
-        onOpen(){
+        inputValue:searchText,
+        onOpen() {
             setOpen(true);
             onOpen && onOpen();
         },
-        onClose(){
+        onClose() {
             setOpen(false);
             onClose && onClose();
         },
-        onInputChange(event, value){
+        onInputChange(event, value) {
             setSearchText(value);
             onInputChange && onInputChange(event, value);
         },
         renderInput:
             params => {
-            return <TextField 
-                {...params}
-                {...textFieldProps} 
-                InputProps={{
-                    ...params.InputProps,
-                    endAdornment:(
-                        <>
-                            {loading && <CircularProgress color={"inherit"} size={20}/>}
-                            {params.InputProps.endAdornment}
-                        </>
-                    )
-                }}
-            />
+                return <TextField
+                    {...params}
+                    {...textFieldProps}
+                    
+                    InputProps={{
+                        ...params.InputProps,
+                        
+                        endAdornment: (
+                            <>
+                                {loading && <CircularProgress color={"inherit"} size={20} />}
+                                {params.InputProps.endAdornment}
+                            </>
+                        )
+                    }}
+                />
             }
-            
-        
+
+
     }
     useEffect(() => {
-        if(!open && !freeSolo){
+        if (!open && !freeSolo) {
             setOptions([]);
         }
-        
+
     }, [open]);
     useEffect(() => {
-        if(!open || debouncedSearchTex ==="" && freeSolo){
+        if (!open || debouncedSearchTex === "" && freeSolo) {
             return;
         }
         let isSubscribed = true;
 
-        (async function getCategory(){
+        (async function getCategory() {
             setLoading(true);
             try {
-                
+
                 const data = await props.fetchOptions(debouncedSearchTex);
-                if(isSubscribed){
+                if (isSubscribed) {
                     setOptions(data);
                 }
-                
-                
-            } finally{
+
+
+            } finally {
                 setLoading(false);
             }
 
         })();
-        return ()=>{
+        return () => {
             let isSubscribed = false;
         }
-        
-    }, [freeSolo ? debouncedSearchTex: open]);
+
+    }, [freeSolo ? debouncedSearchTex : open]);
+
+    useImperativeHandle(ref, ()=> ({
+        clear: () => {
+            
+            setSearchText("");
+            setOptions([]);
+        }
+    }));
 
     return (
         <div>
-            <Autocomplete {...autocompleteProps}/>
+            <Autocomplete {...autocompleteProps} />
         </div>
     );
-};
+});
 
 export default AsyncAutoComplete;

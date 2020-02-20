@@ -1,6 +1,6 @@
 // @flow 
 import * as React from 'react';
-import {useRef} from 'react';
+import {useRef,useImperativeHandle} from 'react';
 import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText, Box, Button, Link } from '@material-ui/core';
 import { FormControlLabelProps } from '@material-ui/core/FormControlLabel';
 import { Rating } from '../../../components/Rating';
@@ -20,11 +20,17 @@ interface UploadFieldProps {
 
     
 };
+interface UploadFieldComponent{
+    clear: () => void;
+}
 
-export const UploadField: React.FC<UploadFieldProps> = (props) => {
+export const UploadField= React.forwardRef<UploadFieldComponent, UploadFieldProps>((props,ref) => {
     const fileRef = useRef() as React.MutableRefObject<InputFileComponent>
     const {label,accept,setValue,disabled,error,link} = props;
 
+    useImperativeHandle(ref, ()=> ({
+        clear: () => fileRef.current.clear()
+    }));
     return (
         <FormControl 
             
@@ -71,4 +77,4 @@ export const UploadField: React.FC<UploadFieldProps> = (props) => {
             
         </FormControl>
     );
-};
+});
