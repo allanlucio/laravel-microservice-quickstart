@@ -1,16 +1,16 @@
 // @flow 
+import { createStyles, FormControl, FormControlProps, FormHelperText, makeStyles, Theme, Typography } from '@material-ui/core';
+import { grey } from '@material-ui/core/colors';
 import * as React from 'react';
-import AsyncAutoComplete from '../../../components/AsyncAutoComplete';
+import AsyncAutoComplete, { AsyncAutoCompleteComponent } from '../../../components/AsyncAutoComplete';
 import { GridSelected } from '../../../components/GridSelected';
 import GridSelectedItem from '../../../components/GridSelectedItem';
-import { Typography, FormControl, FormHelperText, FormControlProps, makeStyles, createStyles, Theme } from '@material-ui/core';
+import useCollectionManager from '../../../hooks/useCollectionManager';
 import useHttpHandled from '../../../hooks/useHttpHandled';
 import categoryHttp from '../../../util/http/category-http';
-import useCollectionManager from '../../../hooks/useCollectionManager';
-import { Genre } from '../../../util/models';
-import genreRoutes from '../../../routes/resources/genre';
 import { getGenresFromCategory } from '../../../util/model-filters';
-import { grey } from '@material-ui/core/colors';
+import { Genre } from '../../../util/models';
+import { useRef, useImperativeHandle } from 'react';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         genresSubtitle: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 
 );
-interface CategoryFieldProps {
+interface CategoryFieldProps extends React.RefAttributes<CategoryFieldComponent>{
     categories: any[];
     setCategories: (categories) => void;
     genres: Genre[];
@@ -30,12 +30,19 @@ interface CategoryFieldProps {
     FormControlProps?: FormControlProps
 
 };
-const CategoryField: React.FC<CategoryFieldProps> = (props) => {
+
+export interface CategoryFieldComponent {
+    clear: () => void;
+}
+const CategoryField= React.forwardRef<CategoryFieldComponent,CategoryFieldProps>((props,ref) => {
     const classes = useStyles();
     const { categories, setCategories, genres, disabled, error } = props;
     const autocompleteHttp = useHttpHandled();
     const { addItem, removeItem } = useCollectionManager(categories, setCategories);
-
+    const autocompleteRef = useRef() as React.MutableRefObject<AsyncAutoCompleteComponent>;
+    useImperativeHandle(ref, ()=> ({
+        clear: () => autocompleteRef.current.clear()
+    }));
     function fetchOptions(searchText) {
         return autocompleteHttp(
             categoryHttp.list(
@@ -51,6 +58,7 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
     return (
         <>
             <AsyncAutoComplete
+                ref={autocompleteRef}
                 fetchOptions={fetchOptions}
                 AutocompleteProps={{
                     clearOnEscape: true,
@@ -89,6 +97,6 @@ const CategoryField: React.FC<CategoryFieldProps> = (props) => {
             </FormControl>
         </>
     );
-};
+});
 
 export default CategoryField;

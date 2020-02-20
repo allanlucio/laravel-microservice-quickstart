@@ -40,7 +40,7 @@ class VideoController extends BasicCrudController
 
     public function store(Request $request)
     {
-        if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
+        // if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesStore());
         $obj = $this->model()::create($validated_data);
@@ -53,7 +53,7 @@ class VideoController extends BasicCrudController
 
     public function update(Request $request, $id)
     {
-        if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
+        // if($request["opened"])$request["opened"] = $this->fixedBoolean($request["opened"]);
 
         $this->addRuleIfGenreHasCategories($request);
         $validated_data = $this->validate($request,$this->rulesUpdate());
@@ -64,19 +64,19 @@ class VideoController extends BasicCrudController
         return new $resource($obj);
     }
 
-    private function fixedBoolean($value){
+    // private function fixedBoolean($value){
 
-        if(is_bool($value)){
-            return $value;
-        }else if($value==='true' || $value === '1'){
-            return true;
-        }
-        else if($value==='false' || $value === '0'){
-            return false;
-        }
+    //     if(is_bool($value)){
+    //         return $value;
+    //     }else if($value==='true' || $value === '1'){
+    //         return true;
+    //     }
+    //     else if($value==='false' || $value === '0'){
+    //         return false;
+    //     }
 
-        return $value;
-    }
+    //     return $value;
+    // }
     protected function addRuleIfGenreHasCategories(Request $request){
         $categoriesId=$request->get("categories_id");
         $categoriesId = is_array($categoriesId)? $categoriesId:[];

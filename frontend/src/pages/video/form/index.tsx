@@ -14,7 +14,7 @@ import { min } from 'date-fns/esm';
 import { DefaultForm } from '../../../components/DefaultForm';
 import { Rating } from '../../../components/Rating';
 import { RatingField } from './RatingField';
-import InputFile from '../../../components/inputFile';
+import InputFile, { InputFileComponent } from '../../../components/inputFile';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { UploadField } from './UploadField';
 import AsyncAutoComplete from '../../../components/AsyncAutoComplete';
@@ -22,12 +22,13 @@ import genreHttp from '../../../util/http/genre-http';
 import { GridSelected } from '../../../components/GridSelected';
 import GridSelectedItem from '../../../components/GridSelectedItem';
 import useHttpHandled from '../../../hooks/useHttpHandled';
-import GenreField from './GenreField';
-import CategoryField from './CategoryField';
-import CastMemberField from './CastMemberField';
+import GenreField, { GenreFieldComponent } from './GenreField';
+import CategoryField, { CategoryFieldComponent } from './CategoryField';
+import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
 import { getGenresFromCategory, genresHasAtLeastOneCategory } from '../../../util/model-filters';
 import { isArray } from 'util';
 import FormDataHelper from '../../../util/form-data-helpers';
+import {zipObject, omit} from "lodash";
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -158,8 +159,14 @@ export const Form: React.FC = () => {
     const [video, setVideo] = useState<Video | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'))
-
-
+    const castMemberRef = React.useRef() as React.MutableRefObject<CastMemberFieldComponent>
+    const categoryRef = React.useRef() as React.MutableRefObject<CategoryFieldComponent>
+    const genreRef = React.useRef() as React.MutableRefObject<GenreFieldComponent>
+    const uploadsRef = React.useRef(
+        zipObject(fileFields, fileFields.map(()=>React.createRef()))
+    ) as React.MutableRefObject<{[key:string]:React.MutableRefObject<InputFileComponent>}>
+    
+    console.log(uploadsRef);
 
     useEffect(() => {
         ["rating",
@@ -187,7 +194,7 @@ export const Form: React.FC = () => {
                     formData.categories_id=formData.categories;
                     formData.genres_id=formData.genres;
                     formData.cast_members_id=formData.cast_members;
-                    reset(formData);
+                    reset(omit(formData,fileFields));
 
                 }
             } catch (error) {
@@ -216,13 +223,14 @@ export const Form: React.FC = () => {
         
 
         const http = video ?
-            videoHttp.create(fileFormData,video.id,{headers:formDataHelper.getHeaders()}) :
-            videoHttp.create(fileFormData);
+            videoHttp.update(video.id,{...formData, _method:'PUT'},{http:{usePost:true}}) :
+            videoHttp.create(formData);
 
         http.then(({ data }) => {
             snackbar.enqueueSnackbar('Video Salvo com Sucesso!', {
                 variant: 'success',
             })
+            id && resetForm(video)
             setTimeout(() => {
                 event ? (
                     id ? history.replace(`/videos/${data.data.id}/edit`) : history.push(`/videos/${data.data.id}/edit`)
@@ -238,6 +246,16 @@ export const Form: React.FC = () => {
                 })
             })
             .finally(() => setLoading(false));
+    }
+
+    function resetForm(data){
+        Object.keys(uploadsRef.current).forEach(
+            field=>uploadsRef.current[field].current.clear()
+        )
+        castMemberRef.current.clear();
+        genreRef.current.clear();
+        categoryRef.current.clear();
+        // reset(data);
     }
     const handleFormChange = event => {
         console.log(event.target.value);
@@ -315,6 +333,7 @@ export const Form: React.FC = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <GenreField
+                                ref={genreRef}
                                 genres={watch('genres_id')}
                                 categories={watch('categories_id')}
                                 setGenres={(value) => setValue('genres_id', value, true)}
@@ -326,6 +345,7 @@ export const Form: React.FC = () => {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <CategoryField
+                                ref={categoryRef}
                                 categories={watch('categories_id')}
                                 setCategories={(value) => setValue('categories_id', value, true)}
                                 genres={watch('genres_id')}
@@ -342,8 +362,9 @@ export const Form: React.FC = () => {
                                 Escolha pelo menos uma categoria de cada genero
                             </FormHelperText>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={12}>
                             <CastMemberField
+                                ref={castMemberRef}
                                 castMembers={watch('cast_members_id')}
                                 setCastMemebers={(value) => setValue('cast_members_id', value, true)}
                                 error={errors.cast_members_id}
@@ -375,6 +396,7 @@ export const Form: React.FC = () => {
                                 Imagens
                             </Typography>
                             <UploadField
+                                ref={uploadsRef.current['thumb_file']}
                                 accept={'image/*'}
                                 label={"Thumb"}
                                 setValue={(value) => setValue('thumb_file', value)}
@@ -382,6 +404,7 @@ export const Form: React.FC = () => {
 
                             />
                             <UploadField
+                                ref={uploadsRef.current['banner_file']}
                                 accept={'image/*'}
                                 label={"Banner"}
                                 setValue={(value) => setValue('banner_file', value)}
@@ -396,12 +419,14 @@ export const Form: React.FC = () => {
                                 Videos
                             </Typography>
                             <UploadField
+                                ref={uploadsRef.current['trailer_file']}
                                 accept={'video/mp4'}
                                 label={"Trailer"}
                                 setValue={(value) => setValue('trailer_file', value)}
                                 link={video && video.trailer_file_url}
                             />
                             <UploadField
+                                ref={uploadsRef.current['video_file']}
                                 accept={'video/mp4'}
                                 label={"Video Principal"}
                                 setValue={(value) => setValue('video_file', value)}
