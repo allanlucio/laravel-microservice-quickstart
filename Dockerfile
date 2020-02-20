@@ -15,6 +15,7 @@ RUN docker-php-ext-install -j$(nproc) gd
 
 WORKDIR /var/www
 RUN rm -rf /var/www/html
+# COPY ./.docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

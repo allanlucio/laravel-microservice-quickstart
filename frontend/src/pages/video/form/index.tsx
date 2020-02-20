@@ -29,6 +29,7 @@ import { getGenresFromCategory, genresHasAtLeastOneCategory } from '../../../uti
 import { isArray } from 'util';
 import FormDataHelper from '../../../util/form-data-helpers';
 import {zipObject, omit} from "lodash";
+import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -141,7 +142,8 @@ export const Form: React.FC = () => {
         errors,
         reset,
         watch,
-        triggerValidation
+        triggerValidation,
+        formState
     } = useForm({
         validationSchema,
         defaultValues: {
@@ -153,6 +155,9 @@ export const Form: React.FC = () => {
         }
 
     });
+
+    useSnackbarFormError(formState.submitCount,errors);
+    
     const snackbar = useSnackbar();
     const history = useHistory();
     const { id } = useParams();
