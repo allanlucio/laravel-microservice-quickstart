@@ -1,34 +1,24 @@
+import { Card, CardContent, Checkbox, FormControlLabel, FormHelperText, Grid, makeStyles, TextField, Theme, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { omit, zipObject } from "lodash";
+import { useSnackbar } from "notistack";
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import { TextField, makeStyles, Theme, FormControlLabel, FormControl, Checkbox, InputLabel, Select, MenuItem, Input, Chip, useTheme, FormHelperText, Grid, Typography, useMediaQuery, Card, CardContent } from '@material-ui/core';
-import Button, { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
-import videoHttp from '../../../util/http/video-http';
-import * as yup from '../../../util/vendor/yup';
-import { useParams, useHistory } from 'react-router';
-import { useSnackbar } from "notistack"
-import categoryHttp from '../../../util/http/category-http';
-import { Video, Category, ListResponse, VideoFileFieldsMap } from '../../../util/models';
-import SubmitActions from '../../../components/SubmitActions';
-import { min } from 'date-fns/esm';
+import { useHistory, useParams } from 'react-router';
 import { DefaultForm } from '../../../components/DefaultForm';
-import { Rating } from '../../../components/Rating';
-import { RatingField } from './RatingField';
-import InputFile, { InputFileComponent } from '../../../components/inputFile';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { UploadField } from './UploadField';
-import AsyncAutoComplete from '../../../components/AsyncAutoComplete';
-import genreHttp from '../../../util/http/genre-http';
-import { GridSelected } from '../../../components/GridSelected';
-import GridSelectedItem from '../../../components/GridSelectedItem';
-import useHttpHandled from '../../../hooks/useHttpHandled';
-import GenreField, { GenreFieldComponent } from './GenreField';
-import CategoryField, { CategoryFieldComponent } from './CategoryField';
-import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
-import { getGenresFromCategory, genresHasAtLeastOneCategory } from '../../../util/model-filters';
-import { isArray } from 'util';
+import { InputFileComponent } from '../../../components/inputFile';
+import SubmitActions from '../../../components/SubmitActions';
+import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
 import FormDataHelper from '../../../util/form-data-helpers';
-import {zipObject, omit} from "lodash";
+import videoHttp from '../../../util/http/video-http';
+import { genresHasAtLeastOneCategory } from '../../../util/model-filters';
+import { Video, VideoFileFieldsMap } from '../../../util/models';
+import * as yup from '../../../util/vendor/yup';
+import CastMemberField, { CastMemberFieldComponent } from './CastMemberField';
+import CategoryField, { CategoryFieldComponent } from './CategoryField';
+import GenreField, { GenreFieldComponent } from './GenreField';
+import { RatingField } from './RatingField';
+import { UploadField } from './UploadField';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -57,23 +47,23 @@ const validationSchema = yup.object().shape({
     categories_id: yup.array()
         .label("Categorias")
         .required()
-        .test('genresHasCategory', "Cada gênero precisa ter ao menos uma categoria selecionada.", function(categories){
+        .test('genresHasCategory', "Cada gênero precisa ter ao menos uma categoria selecionada.", function (categories) {
             const genres = this.parent.genres_id;
-            const genresHasCategories = genresHasAtLeastOneCategory(genres,categories);
+            const genresHasCategories = genresHasAtLeastOneCategory(genres, categories);
             return genresHasCategories.length === genres.length;
         })
     ,
     genres_id: yup.array()
         .label("Gêneros")
         .required()
-        
-        // .transform((array) => {
-        //     console.log("transform");
-        //     const result = array.map((elemento) => elemento.id)
 
-        //     return result;
-        // })
-        ,
+    // .transform((array) => {
+    //     console.log("transform");
+    //     const result = array.map((elemento) => elemento.id)
+
+    //     return result;
+    // })
+    ,
 
     cast_members_id: yup.array()
         .label("Membros de elenco")
@@ -141,18 +131,22 @@ export const Form: React.FC = () => {
         errors,
         reset,
         watch,
-        triggerValidation
+        triggerValidation,
+        formState
     } = useForm({
         validationSchema,
         defaultValues: {
             genres_id: [],
             categories_id: [],
             cast_members_id: [],
-            rating:"L",
-            opened:false
+            rating: "L",
+            opened: false
         }
 
     });
+
+    useSnackbarFormError(formState.submitCount, errors);
+
     const snackbar = useSnackbar();
     const history = useHistory();
     const { id } = useParams();
@@ -163,9 +157,9 @@ export const Form: React.FC = () => {
     const categoryRef = React.useRef() as React.MutableRefObject<CategoryFieldComponent>
     const genreRef = React.useRef() as React.MutableRefObject<GenreFieldComponent>
     const uploadsRef = React.useRef(
-        zipObject(fileFields, fileFields.map(()=>React.createRef()))
-    ) as React.MutableRefObject<{[key:string]:React.MutableRefObject<InputFileComponent>}>
-    
+        zipObject(fileFields, fileFields.map(() => React.createRef()))
+    ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>
+
     console.log(uploadsRef);
 
     useEffect(() => {
@@ -191,10 +185,10 @@ export const Form: React.FC = () => {
                 if (isSubscribed) {
                     setVideo(data.data);
                     const formData = data.data;
-                    formData.categories_id=formData.categories;
-                    formData.genres_id=formData.genres;
-                    formData.cast_members_id=formData.cast_members;
-                    reset(omit(formData,fileFields));
+                    formData.categories_id = formData.categories;
+                    formData.genres_id = formData.genres;
+                    formData.cast_members_id = formData.cast_members;
+                    reset(omit(formData, fileFields));
 
                 }
             } catch (error) {
@@ -215,15 +209,15 @@ export const Form: React.FC = () => {
     function onSubmit(formData, event) {
         setLoading(true);
 
-        formData.categories_id=formData.categories_id.map(category=>category.id);
-        formData.genres_id=formData.genres_id.map(genre=>genre.id);
-    
-        const formDataHelper = new FormDataHelper(formData,fileFields,video!==null);
+        formData.categories_id = formData.categories_id.map(category => category.id);
+        formData.genres_id = formData.genres_id.map(genre => genre.id);
+
+        const formDataHelper = new FormDataHelper(formData, fileFields, video !== null);
         const fileFormData = formDataHelper.getFormData();
-        
+
 
         const http = video ?
-            videoHttp.update(video.id,{...formData, _method:'PUT'},{http:{usePost:true}}) :
+            videoHttp.update(video.id, { ...formData, _method: 'PUT' }, { http: { usePost: true } }) :
             videoHttp.create(formData);
 
         http.then(({ data }) => {
@@ -248,9 +242,9 @@ export const Form: React.FC = () => {
             .finally(() => setLoading(false));
     }
 
-    function resetForm(data){
+    function resetForm(data) {
         Object.keys(uploadsRef.current).forEach(
-            field=>uploadsRef.current[field].current.clear()
+            field => uploadsRef.current[field].current.clear()
         )
         castMemberRef.current.clear();
         genreRef.current.clear();
@@ -264,12 +258,15 @@ export const Form: React.FC = () => {
     };
 
     return (
+
+
         <DefaultForm
             GridItemProps={{ xs: 12, md: 12 }}
             onSubmit={handleSubmit(onSubmit)
             }>
 
             <Grid container spacing={5}>
+
                 <Grid item xs={12} md={6}>
                     <TextField
                         inputRef={register}
@@ -468,6 +465,9 @@ export const Form: React.FC = () => {
                 )} />
 
         </DefaultForm>
+
+
+
     );
 }
 
