@@ -1,27 +1,22 @@
-import * as React from 'react';
-import { useState, useEffect, useRef } from "react";
-import MUIDataTable, { MUIDataTableColumn } from 'mui-datatables';
-import { httpVideo } from '../../util/http';
-import { Chip, MuiThemeProvider } from '@material-ui/core';
+import EditIcon from "@material-ui/icons/Edit";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import videoHttp from '../../util/http/video-http';
-import { Category, Video, ListResponse, Genre } from '../../util/models';
-import DefaultTable, { TableColumn, MuiDatatableRefComponent } from '../../components/Table';
-import { Link } from 'react-router-dom';
-import useFilter from '../../hooks/useFilter';
-import { FilterResetButton } from '../../components/Table/FilterResetButton';
-import EditIcon from "@material-ui/icons/Edit";
-import { BadgeYes, BadgeNo } from '../../components/Badge';
 import { useSnackbar } from 'notistack';
-import * as yup from '../../util/vendor/yup';
-import categoryHttp from '../../util/http/category-http';
+import * as React from 'react';
+import { useEffect, useRef, useState } from "react";
+import { Link } from 'react-router-dom';
+import { DeleteDialog } from '../../components/DeleteDialog';
+import DefaultTable, { MuiDatatableRefComponent, TableColumn } from '../../components/Table';
+import { FilterResetButton } from '../../components/Table/FilterResetButton';
+import useDeleteCollection from '../../hooks/useDeleteCollection';
+import useFilter from '../../hooks/useFilter';
 import DatatableExtraFilterHelper from '../../hooks/useFilter/datatableExtraFilterHelper';
 import { CategoryExtraFilterDefinition } from '../../util/extra-filters/CategoryExtraFilter';
-import genreHttp from '../../util/http/genre-http';
 import GenreExtraFilterDefinition from '../../util/extra-filters/GenreExtraFilter';
-import { DeleteDialog } from '../../components/DeleteDialog';
-import useDeleteCollection from '../../hooks/useDeleteCollection';
+import categoryHttp from '../../util/http/category-http';
+import genreHttp from '../../util/http/genre-http';
+import videoHttp from '../../util/http/video-http';
+import { Category, Genre, ListResponse, Video } from '../../util/models';
 
 
 
@@ -219,7 +214,7 @@ export const Table: React.FC = () => {
                 setData(data.data);
                 setTotalRecords(data.meta.total);
                 if(openDeleteDialog){
-                    setOpenDeleteDialog(false)
+                    setOpenDeleteDialog(false) 
                 }
             }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect,useState} from 'react';
+import {useEffect,useState, useContext} from 'react';
 import { TextField, Checkbox, Box, Button, makeStyles, Theme, FormControlLabel, Grid } from '@material-ui/core';
 import { ButtonProps } from '@material-ui/core/Button';
 import useForm from "react-hook-form";
@@ -10,6 +10,7 @@ import {useSnackbar} from "notistack"
 import { Category } from '../../util/models';
 import SubmitActions from '../../components/SubmitActions';
 import { DefaultForm } from '../../components/DefaultForm';
+import LoadingContext from '../../components/loading/LoadingContext';
 
 
 
@@ -42,7 +43,7 @@ export const Form: React.FC = ()=>{
     const history = useHistory();
     const {id} = useParams();
     const [category, setCategory] = useState<Category | null>(null)
-    const [loading, setLoading] = useState<boolean>(false)
+    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         register({name: "is_active"});
@@ -54,7 +55,7 @@ export const Form: React.FC = ()=>{
         }
 
         (async function getCategory(){
-            setLoading(true);
+            
             try {
                 const {data} = await categoryHttp.get(id);
                 setCategory(data.data)
@@ -65,8 +66,6 @@ export const Form: React.FC = ()=>{
                     "Não foi possível carregar as informações",
                     {variant: 'error'}
                 );
-            }finally{
-                setLoading(false);
             }
 
         })();
@@ -75,7 +74,7 @@ export const Form: React.FC = ()=>{
     }, []);
 
     async function onSubmit(formData, event){
-        setLoading(true);
+        
         try{
             const http = category ? 
             categoryHttp.update(category.id,formData):
@@ -95,8 +94,6 @@ export const Form: React.FC = ()=>{
             snackbar.enqueueSnackbar('Não foi possível salvar esta categoria',{
                 variant: 'error',
             })
-        }finally{
-            setLoading(false);
         }
         
 

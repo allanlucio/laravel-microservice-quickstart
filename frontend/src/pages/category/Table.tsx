@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useState,useEffect, useRef} from "react";
+import {useState,useEffect, useRef, useContext} from "react";
 import { Chip } from '@material-ui/core';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
@@ -12,6 +12,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import { FilterResetButton } from '../../components/Table/FilterResetButton';
 import useFilter from '../../hooks/useFilter';
 import { BadgeYes, BadgeNo } from '../../components/Badge';
+import LoadingContext from '../../components/loading/LoadingContext';
 
 const columnsDefinition: TableColumn[] = [
     {
@@ -86,7 +87,9 @@ export const Table: React.FC = ()=>{
     const subscribed = useRef(true);
     const tableRef = useRef() as React.MutableRefObject<MuiDatatableRefComponent>;
     const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
+
+    // const [loading, setLoading] = useState<boolean>(false);
     const {
         filterState,
         dispatch,
@@ -122,7 +125,6 @@ export const Table: React.FC = ()=>{
         debouncedFilterState.order]);
 
     async function getData(){
-        setLoading(true);
             try{
                 
                 const {data}= await categoryHttp.list<ListResponse<Category>>({
@@ -149,7 +151,6 @@ export const Table: React.FC = ()=>{
                     "Não foi possivel carregar as informações",
                     {variant:"error"});
             }finally{
-                setLoading(false);
             }
     }
 
