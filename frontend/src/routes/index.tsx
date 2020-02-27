@@ -4,6 +4,7 @@ import categoryRoutes from "./resources/category";
 import castMemberRoutes from "./resources/castMember";
 import genreRoutes from "./resources/genre";
 import videoRoutes from "./resources/video";
+import uploadRoutes from "./resources/upload";
 
 export interface MyRouteProps extends RouteProps{
     label : string;
@@ -22,6 +23,7 @@ var routes: MyRouteProps[] = [
     ...castMemberRoutes,
     ...genreRoutes,
     ...videoRoutes,
+    ...uploadRoutes
 
 ];
 
