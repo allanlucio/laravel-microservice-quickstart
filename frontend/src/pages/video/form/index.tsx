@@ -19,6 +19,7 @@ import CategoryField, { CategoryFieldComponent } from './CategoryField';
 import GenreField, { GenreFieldComponent } from './GenreField';
 import { RatingField } from './RatingField';
 import { UploadField } from './UploadField';
+import { SnackbarUpload } from '../../../components/SnackbarUpload';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -174,6 +175,18 @@ export const Form: React.FC = () => {
 
 
     useEffect(() => {
+        snackbar.enqueueSnackbar("",{
+            key: 'snackbar-upload',
+            persist:true,
+            anchorOrigin: {
+                vertical:"bottom",
+                horizontal:"right"
+            },
+            content:(key, message)=>(
+                <SnackbarUpload id={key}/>
+            )
+        })
+
         if (!id) {
             return;
         }
@@ -212,8 +225,8 @@ export const Form: React.FC = () => {
         formData.categories_id = formData.categories_id.map(category => category.id);
         formData.genres_id = formData.genres_id.map(genre => genre.id);
 
-        const formDataHelper = new FormDataHelper(formData, fileFields, video !== null);
-        const fileFormData = formDataHelper.getFormData();
+        // const formDataHelper = new FormDataHelper(formData, fileFields, video !== null);
+        // const fileFormData = formDataHelper.getFormData();
 
 
         const http = video ?
