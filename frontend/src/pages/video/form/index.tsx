@@ -19,6 +19,9 @@ import GenreField, { GenreFieldComponent } from './GenreField';
 import { RatingField } from './RatingField';
 import { UploadField } from './UploadField';
 import { SnackbarUpload } from '../../../components/SnackbarUpload';
+import { useSelector, useDispatch } from 'react-redux';
+import { State as UploadState, Upload} from '../../../store/upload/types';
+import { Creators } from '../../../store/upload';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -160,6 +163,8 @@ export const Form: React.FC = () => {
         zipObject(fileFields, fileFields.map(() => React.createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>
 
+    // const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+    // const dispatch = useDispatch();
     console.log(uploadsRef);
 
     useEffect(() => {
