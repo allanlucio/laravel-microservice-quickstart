@@ -9,7 +9,6 @@ import { DefaultForm } from '../../../components/DefaultForm';
 import { InputFileComponent } from '../../../components/inputFile';
 import SubmitActions from '../../../components/SubmitActions';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
-import FormDataHelper from '../../../util/form-data-helpers';
 import videoHttp from '../../../util/http/video-http';
 import { genresHasAtLeastOneCategory } from '../../../util/model-filters';
 import { Video, VideoFileFieldsMap } from '../../../util/models';
@@ -475,7 +474,7 @@ export const Form: React.FC = () => {
                 handleSave={() => triggerValidation().then(isValid => {
                     isValid && onSubmit(validationSchema.cast(getValues()), null)
                 }
-                )} />
+                )}/>
 
         </DefaultForm>
 

@@ -2,3 +2,4 @@
 .docker/dbdata
 .vscode/
 .npm-cache/
+.vscodeignore
