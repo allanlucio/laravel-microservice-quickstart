@@ -1,6 +1,6 @@
-import { Types } from './index';
-import { eventChannel } from 'redux-saga';
-import { actionChannel, take, call } from 'redux-saga/effects';
+import { Types, Creators } from './index';
+import { eventChannel, END } from 'redux-saga';
+import { actionChannel, take, call, put, select} from 'redux-saga/effects';
 import { AddUploadAction, FileUpload, FileInfo } from './types';
 import { Video } from '../../util/models';
 import videoHttp from '../../util/http/video-http';
@@ -9,6 +9,7 @@ export function* uploadWatcherSaga() {
     const newFilesChannel = yield actionChannel(Types.ADD_UPLOAD);
     while (true) {
         const { payload }: AddUploadAction = yield take(newFilesChannel);
+        console.log(yield select((state) => state));
         console.log(payload);
         for (const fileInfo of payload.files) {
             yield call(uploadFile, { video: payload.video, fileInfo: fileInfo })
@@ -21,8 +22,16 @@ function* uploadFile({ video, fileInfo }: { video: Video, fileInfo: FileInfo }) 
     const channel = yield call(sendUpload, { id: video.id, fileInfo: fileInfo });
     while (true) {
         try{
-            const event = yield take(channel);
-            console.log(event);
+            const {progress,response} = yield take(channel);
+            if(response){
+                return response;
+            }
+            yield put(Creators.updateProgress({
+                video,
+                fileField:fileInfo.fileField,
+                progress
+            }))
+            console.log("atualizar progresso");
         }catch(e){
             console.log(e);
         }
@@ -41,13 +50,18 @@ function* sendUpload({ id, fileInfo }: { id: string, fileInfo: FileInfo }) {
                 usePost: true
             },
             config: {
-                onUploadProgress(progressEvent) {
-                    emitter(progressEvent);
+                onUploadProgress(progressEvent: ProgressEvent) {
+                    if(progressEvent.lengthComputable){
+                        const progress = progressEvent.loaded / progressEvent.total;
+                        emitter({progress});
+                    }
+                    
                 }
             }
         })
-            .then(response => emitter(response))
-            .catch(error => emitter(error));
+            .then(response => emitter({response}))
+            .catch(error => emitter(error))
+            .finally(()=>emitter(END));
 
         const unsubcribe = () => { }
 
