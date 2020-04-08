@@ -1,10 +1,8 @@
 // @flow 
 import * as React from 'react';
 import {useRef,useImperativeHandle} from 'react';
-import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText, Box, Button, Link } from '@material-ui/core';
-import { FormControlLabelProps } from '@material-ui/core/FormControlLabel';
-import { Rating } from '../../../components/Rating';
-import { FormControlProps } from '@material-ui/core/FormControl';
+import { FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText, Box, Button, Link } from '@material-ui/core';
+import FormControl, { FormControlProps } from '@material-ui/core/FormControl';
 import InputFile, { InputFileComponent } from '../../../components/inputFile';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 

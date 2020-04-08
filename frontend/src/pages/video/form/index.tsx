@@ -9,7 +9,6 @@ import { DefaultForm } from '../../../components/DefaultForm';
 import { InputFileComponent } from '../../../components/inputFile';
 import SubmitActions from '../../../components/SubmitActions';
 import useSnackbarFormError from '../../../hooks/useSnackbarFormError';
-import FormDataHelper from '../../../util/form-data-helpers';
 import videoHttp from '../../../util/http/video-http';
 import { genresHasAtLeastOneCategory } from '../../../util/model-filters';
 import { Video, VideoFileFieldsMap } from '../../../util/models';
@@ -19,6 +18,10 @@ import CategoryField, { CategoryFieldComponent } from './CategoryField';
 import GenreField, { GenreFieldComponent } from './GenreField';
 import { RatingField } from './RatingField';
 import { UploadField } from './UploadField';
+import { SnackbarUpload } from '../../../components/SnackbarUpload';
+import { useSelector, useDispatch } from 'react-redux';
+import { State as UploadState, Upload} from '../../../store/upload/types';
+import { Creators } from '../../../store/upload';
 
 const validationSchema = yup.object().shape({
     title: yup
@@ -160,6 +163,8 @@ export const Form: React.FC = () => {
         zipObject(fileFields, fileFields.map(() => React.createRef()))
     ) as React.MutableRefObject<{ [key: string]: React.MutableRefObject<InputFileComponent> }>
 
+    // const uploads = useSelector<UploadState, Upload[]>((state) => state.uploads);
+    // const dispatch = useDispatch();
     console.log(uploadsRef);
 
     useEffect(() => {
@@ -174,6 +179,18 @@ export const Form: React.FC = () => {
 
 
     useEffect(() => {
+        snackbar.enqueueSnackbar("",{
+            key: 'snackbar-upload',
+            persist:true,
+            anchorOrigin: {
+                vertical:"bottom",
+                horizontal:"right"
+            },
+            content:(key, message)=>(
+                <SnackbarUpload id={key}/>
+            )
+        })
+
         if (!id) {
             return;
         }
@@ -212,8 +229,8 @@ export const Form: React.FC = () => {
         formData.categories_id = formData.categories_id.map(category => category.id);
         formData.genres_id = formData.genres_id.map(genre => genre.id);
 
-        const formDataHelper = new FormDataHelper(formData, fileFields, video !== null);
-        const fileFormData = formDataHelper.getFormData();
+        // const formDataHelper = new FormDataHelper(formData, fileFields, video !== null);
+        // const fileFormData = formDataHelper.getFormData();
 
 
         const http = video ?
@@ -462,7 +479,7 @@ export const Form: React.FC = () => {
                 handleSave={() => triggerValidation().then(isValid => {
                     isValid && onSubmit(validationSchema.cast(getValues()), null)
                 }
-                )} />
+                )}/>
 
         </DefaultForm>
 
