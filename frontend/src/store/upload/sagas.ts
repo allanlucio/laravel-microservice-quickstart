@@ -1,4 +1,5 @@
 import { Types } from './index';
+import { eventChannel } from 'redux-saga';
 import { actionChannel, take, call } from 'redux-saga/effects';
 import { AddUploadAction, FileUpload, FileInfo } from './types';
 import { Video } from '../../util/models';
@@ -17,22 +18,39 @@ export function* uploadWatcherSaga() {
 
 function* uploadFile({ video, fileInfo }: { video: Video, fileInfo: FileInfo }) {
     console.log(video, fileInfo);
-    yield call(sendUpload, { id: video.id, fileInfo: fileInfo })
+    const channel = yield call(sendUpload, { id: video.id, fileInfo: fileInfo });
+    while (true) {
+        try{
+            const event = yield take(channel);
+            console.log(event);
+        }catch(e){
+            console.log(e);
+        }
+        
+    }
 
 }
 
 function* sendUpload({ id, fileInfo }: { id: string, fileInfo: FileInfo }) {
-    videoHttp.partialUpdate(id, {
-        _method:"PATCH",
-        [fileInfo.fileField]: fileInfo.file
-    }, {
-        http:{
-            usePost:true
-        },
-        config: {
-            onUploadProgress(progressEvent) {
-                console.log(progressEvent);
+    return eventChannel(emitter => {
+        videoHttp.partialUpdate(id, {
+            _method: "PATCH",
+            [fileInfo.fileField]: fileInfo.file
+        }, {
+            http: {
+                usePost: true
+            },
+            config: {
+                onUploadProgress(progressEvent) {
+                    emitter(progressEvent);
+                }
             }
-        }
-    });
+        })
+            .then(response => emitter(response))
+            .catch(error => emitter(error));
+
+        const unsubcribe = () => { }
+
+        return unsubcribe;
+    })
 }
