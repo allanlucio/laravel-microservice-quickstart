@@ -12,7 +12,12 @@ export function* uploadWatcherSaga() {
         console.log(yield select((state) => state));
         console.log(payload);
         for (const fileInfo of payload.files) {
-            yield call(uploadFile, { video: payload.video, fileInfo: fileInfo })
+            try {
+                yield call(uploadFile, { video: payload.video, fileInfo: fileInfo })    
+            } catch (error) {
+                
+            }
+            
         }
     }
 }
@@ -33,7 +38,12 @@ function* uploadFile({ video, fileInfo }: { video: Video, fileInfo: FileInfo }) 
             }))
             console.log("atualizar progresso");
         }catch(e){
-            console.log(e);
+            yield put(Creators.setUploadError({
+                video,
+                fileField:fileInfo.fileField,
+                error:e
+            }))
+            throw e;
         }
         
     }
