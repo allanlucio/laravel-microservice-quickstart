@@ -43,7 +43,7 @@ function addUpload(state = INITIAL_STATE, action: AddUploadAction): State {
     if(index !== -1 && state.uploads[index].progress<1){
         return state;
     }
-    const uploads = index === -2
+    const uploads = index === -1
         ? state.uploads
         : update(state.uploads,{
             $splice: [[index,1]]
