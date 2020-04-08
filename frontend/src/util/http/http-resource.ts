@@ -39,7 +39,7 @@ export default class HttpResource {
         return this.http.post<T>(this.resource, sendData);
     }
 
-    update<T = any>(id, data, options?: { http?: { usePost: boolean } }) {
+    update<T = any>(id, data, options?: { http?: { usePost: boolean }, config?: AxiosRequestConfig }) {
         let sendData = data;
         if (this.containsFile(data)) {
             sendData = this.getFormData(data);
